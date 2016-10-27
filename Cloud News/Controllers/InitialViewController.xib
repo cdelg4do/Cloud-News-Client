@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11201" systemVersion="15G1004" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11161"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="InitialViewController" customModule="Cloud_News" customModuleProvider="target">
+            <connections>
+                <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="i5M-Pr-FkT">
+            <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="GCb-gb-ed8">
+                    <subviews>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="BcK-y2-P75">
+                            <constraints>
+                                <constraint firstAttribute="width" constant="170" id="90G-Eq-lW9"/>
+                                <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="170" id="USl-iQ-d92"/>
+                                <constraint firstAttribute="height" constant="30" id="hYm-et-xRj"/>
+                            </constraints>
+                            <fontDescription key="fontDescription" name=".SFNSDisplay-Regular" family=".SF NS Display" pointSize="30"/>
+                            <state key="normal" title="Read News"/>
+                            <connections>
+                                <action selector="readerMode:" destination="-1" eventType="touchUpInside" id="LfF-3j-aGD"/>
+                            </connections>
+                        </button>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" hasAttributedTitle="YES" translatesAutoresizingMaskIntoConstraints="NO" id="93R-Z0-ycG">
+                            <state key="normal">
+                                <attributedString key="attributedTitle">
+                                    <fragment content="I want to write news!">
+                                        <attributes>
+                                            <color key="NSColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                            <font key="NSFont" size="15" name="Arial-BoldItalicMT"/>
+                                        </attributes>
+                                    </fragment>
+                                </attributedString>
+                            </state>
+                            <connections>
+                                <action selector="authorMode:" destination="-1" eventType="touchUpInside" id="KAS-WR-qiF"/>
+                            </connections>
+                        </button>
+                    </subviews>
+                    <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                    <constraints>
+                        <constraint firstItem="BcK-y2-P75" firstAttribute="centerX" secondItem="GCb-gb-ed8" secondAttribute="centerX" id="4xx-mL-cPu"/>
+                        <constraint firstItem="93R-Z0-ycG" firstAttribute="centerX" secondItem="GCb-gb-ed8" secondAttribute="centerX" id="SNT-tO-09r"/>
+                        <constraint firstAttribute="bottom" secondItem="93R-Z0-ycG" secondAttribute="bottom" constant="8" id="WhA-S5-EuW"/>
+                        <constraint firstItem="BcK-y2-P75" firstAttribute="top" secondItem="GCb-gb-ed8" secondAttribute="top" constant="8" id="ewI-ip-d8R"/>
+                        <constraint firstAttribute="height" constant="200" id="zkh-de-Rgp"/>
+                    </constraints>
+                </view>
+            </subviews>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+            <constraints>
+                <constraint firstAttribute="trailing" secondItem="GCb-gb-ed8" secondAttribute="trailing" constant="40" id="SS9-tD-i7q"/>
+                <constraint firstItem="GCb-gb-ed8" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" constant="40" id="b5I-tf-gaR"/>
+                <constraint firstItem="GCb-gb-ed8" firstAttribute="centerY" secondItem="i5M-Pr-FkT" secondAttribute="centerY" id="qKA-hc-jgU"/>
+            </constraints>
+            <point key="canvasLocation" x="-429" y="-42"/>
+        </view>
+    </objects>
+</document>
