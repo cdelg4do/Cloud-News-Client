@@ -124,13 +124,13 @@ class ReaderTableViewController: UITableViewController {
     // Acción al seleccionar una celda de la tabla
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
-        //let selectedNews = newsList?[indexPath.row]
+        let selectedNews = newsList?[indexPath.row]
         
-        //let newsId = selectedNews?["id"] as! String?
+        let newsId = selectedNews?["id"] as! String?
         
         // Crear el controlador para mostrar el contenido de esa noticia, y mostrarla
-        //let newsVC = ReaderNewsDetailViewController(id: newsId!)
-        //navigationController?.pushViewController(newsVC, animated: true)
+        let newsDetailVC = ReaderNewsDetailViewController(id: newsId!, client: appClient)
+        navigationController?.pushViewController(newsDetailVC, animated: true)
     }
     
     
