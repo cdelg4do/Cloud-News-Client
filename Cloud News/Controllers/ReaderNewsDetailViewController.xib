@@ -9,7 +9,14 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ReaderNewsDetailViewController" customModule="Cloud_News" customModuleProvider="target">
             <connections>
+                <outlet property="authorLabel" destination="bDR-9p-vvj" id="9AE-6T-s01"/>
+                <outlet property="dateLabel" destination="Iuo-MX-nRZ" id="Twg-wR-w9V"/>
+                <outlet property="locationLabel" destination="fX0-Xv-YPo" id="Hza-bd-Wjc"/>
+                <outlet property="newsImage" destination="OtS-2m-wZl" id="U78-Eb-cH1"/>
+                <outlet property="newsText" destination="Mnt-cZ-3Yo" id="kTU-Ut-Swd"/>
+                <outlet property="titleLabel" destination="OpF-Y4-8cF" id="D4m-g1-eN9"/>
                 <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
+                <outlet property="viewsLabel" destination="cnp-Ir-JU1" id="0PB-bF-FKy"/>
             </connections>
         </placeholder>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
@@ -39,12 +46,12 @@
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="date label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Iuo-MX-nRZ">
                                             <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                            <nil key="textColor"/>
+                                            <color key="textColor" white="0.25" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="views counter" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cnp-Ir-JU1">
                                             <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                            <nil key="textColor"/>
+                                            <color key="textColor" white="0.25" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                                             <nil key="highlightedColor"/>
                                         </label>
                                     </subviews>
@@ -65,16 +72,11 @@
                                         <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="21" id="wBW-By-acO"/>
                                     </constraints>
                                     <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                    <nil key="textColor"/>
+                                    <color key="textColor" white="0.25" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                                     <nil key="highlightedColor"/>
                                 </label>
-                                <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" editable="NO" textAlignment="justified" translatesAutoresizingMaskIntoConstraints="NO" id="Mnt-cZ-3Yo">
+                                <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" editable="NO" text="news text" textAlignment="justified" translatesAutoresizingMaskIntoConstraints="NO" id="Mnt-cZ-3Yo">
                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                    <mutableString key="text">Lorem fistrum te va a hasé pupitaa ahorarr amatomaa tiene musho peligro tiene musho peligro condemor ese hombree. Condemor diodenoo por la gloria de mi madre condemor diodenoo ese que llega se calle ustée. Pecador diodeno se calle ustée a gramenawer te voy a borrar el cerito mamaar te voy a borrar el cerito pecador diodeno. Ese hombree al ataquerl a peich me cago en tus muelas ahorarr sexuarl diodeno torpedo diodenoo papaar papaar. A gramenawer caballo blanco caballo negroorl quietooor amatomaa. Me cago en tus muelas me cago en tus muelas se calle ustée diodeno quietooor de la pradera a peich. Al ataquerl no te digo trigo por no llamarte Rodrigor qué dise usteer la caidita ahorarr torpedo a peich está la cosa muy malar sexuarl por la gloria de mi madre pecador.
-
-A gramenawer papaar papaar amatomaa se calle ustée. Ese pedazo de ahorarr caballo blanco caballo negroorl jarl llevame al sircoo. A peich a gramenawer tiene musho peligro sexuarl diodenoo ahorarr la caidita jarl sexuarl. Ese hombree caballo blanco caballo negroorl a peich torpedo ese hombree qué dise usteer diodeno sexuarl ahorarr ese pedazo de. Ese hombree a gramenawer apetecan no puedor no te digo trigo por no llamarte Rodrigor condemor no te digo trigo por no llamarte Rodrigor ese pedazo de pupita. La caidita por la gloria de mi madre diodeno a peich. Diodenoo tiene musho peligro qué dise usteer pecador te voy a borrar el cerito me cago en tus muelas. Llevame al sircoo tiene musho peligro diodeno apetecan ahorarr amatomaa al ataquerl.
-
-Ese hombree jarl pupita papaar papaar caballo blanco caballo negroorl a gramenawer llevame al sircoo caballo blanco caballo negroorl. Al ataquerl no puedor va usté muy cargadoo ese que llega ese hombree está la cosa muy malar se calle ustée diodeno. Mamaar quietooor va usté muy cargadoo diodenoo está la cosa muy malar ese pedazo de ese que llega a peich te voy a borrar el cerito. Ese pedazo de al ataquerl a gramenawer a wan fistro diodenoo. Pupita va usté muy cargadoo ese que llega llevame al sircoo a peich ese que llega tiene musho peligro mamaar me cago en tus muelas llevame al sircoo pecador. Va usté muy cargadoo a gramenawer ese que llega va usté muy cargadoo no puedor ese pedazo de. Papaar papaar me cago en tus muelas de la pradera condemor amatomaa amatomaa de la pradera torpedo me cago en tus muelas a wan fistro. A gramenawer pupita torpedo ese pedazo de diodenoo.</mutableString>
                                     <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                     <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                                 </textView>
@@ -120,7 +122,7 @@ Ese hombree jarl pupita papaar papaar caballo blanco caballo negroorl a gramenaw
                 <constraint firstAttribute="trailing" secondItem="lAV-kR-SJj" secondAttribute="trailing" constant="8" id="rFa-Cr-4lN"/>
                 <constraint firstItem="lAV-kR-SJj" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" constant="8" id="va6-AQ-bb1"/>
             </constraints>
-            <point key="canvasLocation" x="-659" y="-319"/>
+            <point key="canvasLocation" x="-1262" y="-344"/>
         </view>
     </objects>
     <resources>

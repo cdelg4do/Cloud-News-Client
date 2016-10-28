@@ -21,6 +21,7 @@ class Backend {
     
     // Endpoints de la API del servidor
     static let publishedNewsApiName: String = "published_news"
+    static let readNewsApiName: String = "read_news"
     
     // Credenciales para la cuenta de Azure Storage
     static let storageAccountName: String = "cloudnewsstorage"

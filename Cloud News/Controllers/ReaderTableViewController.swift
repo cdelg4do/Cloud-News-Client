@@ -109,8 +109,7 @@ class ReaderTableViewController: UITableViewController {
                     
                     if image != nil {
                         self.thumbsCache[newsId!] = image!
-                        cell?.imageView?.image = image!
-                    }
+                        cell?.imageView?.image = image!                    }
                 }
             }
             

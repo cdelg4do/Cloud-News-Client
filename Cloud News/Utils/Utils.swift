@@ -8,15 +8,17 @@
 
 import Foundation
 import UIKit
+import CoreLocation
 
 
 class Utils {
     
-    // Clausuras de finalización, funciones que reciben un UIImage? o un Data?
+    // Clausuras de finalización, funciones que reciben un UIImage?, un Data?, o un String?
     // y que se ejecutarán siempre en la cola principal
     
     typealias imageClosure = (UIImage?) -> ()
     typealias dataClosure = (Data?) -> ()
+    typealias stringClosure = (String?) -> ()
     
     
     // Función que realiza la descarga de un blob de una imagen contenida en un Storage Container remoto, en segundo plano
@@ -71,8 +73,7 @@ class Utils {
                 return
             }
             
-            print("\nBlob descargado con éxito! (\(data?.count) bytes)\n")
-            
+            print("\nBlob descargado con éxito! (\((data?.count)!) bytes)\n")
             completion( UIImage(data: data!) )
         }
         
@@ -122,6 +123,46 @@ class Utils {
     }
     
     
+    // Función que obtiene (en segundo plano) la dirección física correspondiente a unas coordenadas
+    // Si la dirección dispone de varios niveles de detalle, devolverá solo los dos niveles más generales (ej. Provincia y País)
+    //
+    // Si la operación se realiza con éxito, produce el String correspondiente.
+    // Si no, produce nil.
+    //
+    // Parámetros:
+    //
+    // - lat, long: coordenadas de la ubicación que se quiere identificar
+    // - completion: clausura de finalización que recibe un String? resultante, que se ejecutará en la cola principal
+    
+    class func asyncReverseGeolocation(lat: Double, long: Double, completion: @escaping stringClosure) {
+        
+        CLGeocoder().reverseGeocodeLocation(CLLocation(latitude: lat, longitude: long), completionHandler: { (placemarks, error) -> Void in
+            
+            if error != nil {
+                print("\nERROR: No ha sido posible realizar la geolocalización inversa\n" + (error?.localizedDescription)!)
+                completion(nil)
+            }
+            
+            else if let placemarks = placemarks,
+                    let placemark = placemarks.last,
+                    let lines: Array<String> = placemark.addressDictionary?["FormattedAddressLines"] as? Array<String> {
+                
+                        //completion( lines.joined(separator: ", ") )
+                
+                        var address = lines[0]
+                        if lines.count > 1  {   address = lines[lines.count-2] + ", " + lines[lines.count-1] }
+                        completion(address)
+            }
+                
+            else {
+                    print("\nERROR: No fue posible hallar una dirección para las coordenadas dadas\n")
+                    completion(nil)
+                }
+        })
+        
+    }
+    
+    
     // Función que re-escala una imagen, para que entre dentro del CGSize indicado
     // (la imagen resultante mantiene su proporción original)
     // (ver https://iosdevcenters.blogspot.com/2015/12/how-to-resize-image-in-swift-in-ios.html)
@@ -158,6 +199,7 @@ class Utils {
         
         return UIScreen.main.nativeBounds.size
     }
+    
     
     // Función que convierte un objeto NSDate a la correspondiente cadena de texto
     class func dateToString(_ date: NSDate) -> String {
