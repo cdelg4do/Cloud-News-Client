@@ -4,7 +4,6 @@
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11161"/>
         <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
-        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -20,75 +19,108 @@
             <subviews>
                 <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="lAV-kR-SJj">
                     <subviews>
-                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="title label" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xSS-KK-VxG">
-                            <constraints>
-                                <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="27" id="Zbo-lk-M6Z"/>
-                                <constraint firstAttribute="height" relation="lessThanOrEqual" constant="60" id="v9s-Jg-yG2"/>
-                            </constraints>
-                            <fontDescription key="fontDescription" type="system" pointSize="22"/>
-                            <nil key="textColor"/>
-                            <nil key="highlightedColor"/>
-                        </label>
-                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="author label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Nw9-ed-YR8">
-                            <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                            <nil key="textColor"/>
-                            <nil key="highlightedColor"/>
-                        </label>
-                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="locationAndDateLabel" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DqG-R6-box">
-                            <constraints>
-                                <constraint firstAttribute="height" relation="lessThanOrEqual" constant="35" id="Acy-0V-Zts"/>
-                                <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="16" id="qk8-k9-vJd"/>
-                            </constraints>
-                            <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                            <nil key="textColor"/>
-                            <nil key="highlightedColor"/>
-                        </label>
-                        <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="no_image.png" translatesAutoresizingMaskIntoConstraints="NO" id="G6c-EG-rD5">
-                            <constraints>
-                                <constraint firstAttribute="width" secondItem="G6c-EG-rD5" secondAttribute="height" multiplier="1:1" id="csk-yf-7xo"/>
-                            </constraints>
-                        </imageView>
-                        <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="8Wc-HH-2b2">
-                            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                            <mutableString key="text">Lorem fistrum te va a hasé pupitaa ahorarr amatomaa tiene musho peligro tiene musho peligro condemor ese hombree. Condemor diodenoo por la gloria de mi madre condemor diodenoo ese que llega se calle ustée. Pecador diodeno se calle ustée a gramenawer te voy a borrar el cerito mamaar te voy a borrar el cerito pecador diodeno. Ese hombree al ataquerl a peich me cago en tus muelas ahorarr sexuarl diodeno torpedo diodenoo papaar papaar. A gramenawer caballo blanco caballo negroorl quietooor amatomaa. Me cago en tus muelas me cago en tus muelas se calle ustée diodeno quietooor de la pradera a peich. Al ataquerl no te digo trigo por no llamarte Rodrigor qué dise usteer la caidita ahorarr torpedo a peich está la cosa muy malar sexuarl por la gloria de mi madre pecador.
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="VUm-zM-fos">
+                            <subviews>
+                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="title label" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="OpF-Y4-8cF">
+                                    <constraints>
+                                        <constraint firstAttribute="height" relation="lessThanOrEqual" constant="50" id="MH3-ai-kAc"/>
+                                        <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="24" id="nfb-4y-ef6"/>
+                                    </constraints>
+                                    <fontDescription key="fontDescription" type="system" pointSize="22"/>
+                                    <nil key="textColor"/>
+                                    <nil key="highlightedColor"/>
+                                </label>
+                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="author label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bDR-9p-vvj">
+                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                    <nil key="textColor"/>
+                                    <nil key="highlightedColor"/>
+                                </label>
+                                <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Etd-Qr-bi0">
+                                    <subviews>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="date label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Iuo-MX-nRZ">
+                                            <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                            <nil key="textColor"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="views counter" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cnp-Ir-JU1">
+                                            <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                            <nil key="textColor"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                    </subviews>
+                                    <constraints>
+                                        <constraint firstAttribute="height" constant="20" id="Lhb-hn-Wy2"/>
+                                        <constraint firstItem="Iuo-MX-nRZ" firstAttribute="leading" secondItem="Etd-Qr-bi0" secondAttribute="leading" id="Uy9-Ko-2MW"/>
+                                        <constraint firstAttribute="trailing" secondItem="cnp-Ir-JU1" secondAttribute="trailing" id="VWp-uJ-BEC"/>
+                                    </constraints>
+                                </stackView>
+                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="no_image.png" translatesAutoresizingMaskIntoConstraints="NO" id="OtS-2m-wZl">
+                                    <constraints>
+                                        <constraint firstAttribute="width" secondItem="OtS-2m-wZl" secondAttribute="height" multiplier="1:1" id="SWn-9R-aOe"/>
+                                    </constraints>
+                                </imageView>
+                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="location label" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fX0-Xv-YPo">
+                                    <constraints>
+                                        <constraint firstAttribute="height" relation="lessThanOrEqual" constant="45" id="uf4-uB-CUj"/>
+                                        <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="21" id="wBW-By-acO"/>
+                                    </constraints>
+                                    <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                    <nil key="textColor"/>
+                                    <nil key="highlightedColor"/>
+                                </label>
+                                <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" editable="NO" textAlignment="justified" translatesAutoresizingMaskIntoConstraints="NO" id="Mnt-cZ-3Yo">
+                                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                    <mutableString key="text">Lorem fistrum te va a hasé pupitaa ahorarr amatomaa tiene musho peligro tiene musho peligro condemor ese hombree. Condemor diodenoo por la gloria de mi madre condemor diodenoo ese que llega se calle ustée. Pecador diodeno se calle ustée a gramenawer te voy a borrar el cerito mamaar te voy a borrar el cerito pecador diodeno. Ese hombree al ataquerl a peich me cago en tus muelas ahorarr sexuarl diodeno torpedo diodenoo papaar papaar. A gramenawer caballo blanco caballo negroorl quietooor amatomaa. Me cago en tus muelas me cago en tus muelas se calle ustée diodeno quietooor de la pradera a peich. Al ataquerl no te digo trigo por no llamarte Rodrigor qué dise usteer la caidita ahorarr torpedo a peich está la cosa muy malar sexuarl por la gloria de mi madre pecador.
 
 A gramenawer papaar papaar amatomaa se calle ustée. Ese pedazo de ahorarr caballo blanco caballo negroorl jarl llevame al sircoo. A peich a gramenawer tiene musho peligro sexuarl diodenoo ahorarr la caidita jarl sexuarl. Ese hombree caballo blanco caballo negroorl a peich torpedo ese hombree qué dise usteer diodeno sexuarl ahorarr ese pedazo de. Ese hombree a gramenawer apetecan no puedor no te digo trigo por no llamarte Rodrigor condemor no te digo trigo por no llamarte Rodrigor ese pedazo de pupita. La caidita por la gloria de mi madre diodeno a peich. Diodenoo tiene musho peligro qué dise usteer pecador te voy a borrar el cerito me cago en tus muelas. Llevame al sircoo tiene musho peligro diodeno apetecan ahorarr amatomaa al ataquerl.
 
 Ese hombree jarl pupita papaar papaar caballo blanco caballo negroorl a gramenawer llevame al sircoo caballo blanco caballo negroorl. Al ataquerl no puedor va usté muy cargadoo ese que llega ese hombree está la cosa muy malar se calle ustée diodeno. Mamaar quietooor va usté muy cargadoo diodenoo está la cosa muy malar ese pedazo de ese que llega a peich te voy a borrar el cerito. Ese pedazo de al ataquerl a gramenawer a wan fistro diodenoo. Pupita va usté muy cargadoo ese que llega llevame al sircoo a peich ese que llega tiene musho peligro mamaar me cago en tus muelas llevame al sircoo pecador. Va usté muy cargadoo a gramenawer ese que llega va usté muy cargadoo no puedor ese pedazo de. Papaar papaar me cago en tus muelas de la pradera condemor amatomaa amatomaa de la pradera torpedo me cago en tus muelas a wan fistro. A gramenawer pupita torpedo ese pedazo de diodenoo.</mutableString>
-                            <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                            <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
-                        </textView>
+                                    <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                    <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                                </textView>
+                            </subviews>
+                            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            <constraints>
+                                <constraint firstAttribute="bottom" secondItem="Mnt-cZ-3Yo" secondAttribute="bottom" constant="8" id="4jU-FW-4Pu"/>
+                                <constraint firstItem="OtS-2m-wZl" firstAttribute="top" secondItem="Etd-Qr-bi0" secondAttribute="bottom" constant="8" id="6uB-Zm-0Ak"/>
+                                <constraint firstAttribute="trailing" secondItem="Etd-Qr-bi0" secondAttribute="trailing" constant="8" id="B1i-pp-rpf"/>
+                                <constraint firstAttribute="trailing" secondItem="OtS-2m-wZl" secondAttribute="trailing" constant="8" id="GPS-Wy-BnC"/>
+                                <constraint firstItem="Mnt-cZ-3Yo" firstAttribute="top" secondItem="fX0-Xv-YPo" secondAttribute="bottom" constant="8" id="Jcf-1d-7r6"/>
+                                <constraint firstAttribute="trailing" secondItem="Mnt-cZ-3Yo" secondAttribute="trailing" constant="8" id="KXT-wi-PR3"/>
+                                <constraint firstItem="bDR-9p-vvj" firstAttribute="leading" secondItem="VUm-zM-fos" secondAttribute="leading" constant="8" id="MPO-P5-yuR"/>
+                                <constraint firstAttribute="trailing" secondItem="fX0-Xv-YPo" secondAttribute="trailing" constant="8" id="S7b-un-PWB"/>
+                                <constraint firstItem="OpF-Y4-8cF" firstAttribute="leading" secondItem="VUm-zM-fos" secondAttribute="leading" constant="8" id="TOt-Fw-0nL"/>
+                                <constraint firstItem="OtS-2m-wZl" firstAttribute="leading" secondItem="VUm-zM-fos" secondAttribute="leading" constant="8" id="W1a-Wi-nvu"/>
+                                <constraint firstAttribute="trailing" secondItem="bDR-9p-vvj" secondAttribute="trailing" constant="8" id="YbF-Aa-5pz"/>
+                                <constraint firstAttribute="trailing" secondItem="OpF-Y4-8cF" secondAttribute="trailing" constant="8" id="aFR-Gx-nPU"/>
+                                <constraint firstItem="fX0-Xv-YPo" firstAttribute="top" secondItem="OtS-2m-wZl" secondAttribute="bottom" constant="8" id="aGw-KX-7I8"/>
+                                <constraint firstItem="OpF-Y4-8cF" firstAttribute="top" secondItem="VUm-zM-fos" secondAttribute="top" constant="8" id="pvr-Al-rdW"/>
+                                <constraint firstItem="fX0-Xv-YPo" firstAttribute="leading" secondItem="VUm-zM-fos" secondAttribute="leading" constant="8" id="qf3-ka-IZU"/>
+                                <constraint firstItem="bDR-9p-vvj" firstAttribute="top" secondItem="OpF-Y4-8cF" secondAttribute="bottom" constant="8" id="qq3-OW-YEG"/>
+                                <constraint firstItem="Etd-Qr-bi0" firstAttribute="top" secondItem="bDR-9p-vvj" secondAttribute="bottom" constant="8" id="sxc-iE-QYy"/>
+                                <constraint firstItem="Etd-Qr-bi0" firstAttribute="leading" secondItem="VUm-zM-fos" secondAttribute="leading" constant="8" id="udp-Bw-8ca"/>
+                                <constraint firstItem="Mnt-cZ-3Yo" firstAttribute="leading" secondItem="VUm-zM-fos" secondAttribute="leading" constant="8" id="wcU-R6-DHe"/>
+                            </constraints>
+                        </view>
                     </subviews>
                     <constraints>
-                        <constraint firstItem="G6c-EG-rD5" firstAttribute="top" secondItem="DqG-R6-box" secondAttribute="bottom" constant="8" id="0sr-hz-cTr"/>
-                        <constraint firstItem="xSS-KK-VxG" firstAttribute="trailing" secondItem="lAV-kR-SJj" secondAttribute="trailingMargin" id="6h4-xa-XTf"/>
-                        <constraint firstItem="8Wc-HH-2b2" firstAttribute="top" secondItem="G6c-EG-rD5" secondAttribute="bottom" constant="8" id="8OF-XZ-edE"/>
-                        <constraint firstItem="xSS-KK-VxG" firstAttribute="top" secondItem="lAV-kR-SJj" secondAttribute="top" constant="8" id="NYv-yk-Ge5"/>
-                        <constraint firstAttribute="trailing" secondItem="8Wc-HH-2b2" secondAttribute="trailing" constant="8" id="Nnn-76-P0S"/>
-                        <constraint firstItem="Nw9-ed-YR8" firstAttribute="centerX" secondItem="lAV-kR-SJj" secondAttribute="centerX" id="Ofo-Cv-LRY"/>
-                        <constraint firstItem="xSS-KK-VxG" firstAttribute="centerX" secondItem="lAV-kR-SJj" secondAttribute="centerX" id="TGS-mj-gi3"/>
-                        <constraint firstItem="xSS-KK-VxG" firstAttribute="top" secondItem="lAV-kR-SJj" secondAttribute="topMargin" id="VM1-JC-E75"/>
-                        <constraint firstItem="G6c-EG-rD5" firstAttribute="leading" secondItem="lAV-kR-SJj" secondAttribute="leading" constant="8" id="Zat-xP-3Ad"/>
-                        <constraint firstAttribute="bottom" secondItem="xSS-KK-VxG" secondAttribute="bottom" constant="965" id="c2w-ji-flZ"/>
-                        <constraint firstAttribute="trailing" secondItem="G6c-EG-rD5" secondAttribute="trailing" constant="8" id="coU-Qr-VHp"/>
-                        <constraint firstAttribute="trailing" secondItem="DqG-R6-box" secondAttribute="trailing" constant="8" id="dP5-8N-juP"/>
-                        <constraint firstItem="8Wc-HH-2b2" firstAttribute="leading" secondItem="lAV-kR-SJj" secondAttribute="leading" constant="8" id="f5Z-Jq-ceD"/>
-                        <constraint firstItem="xSS-KK-VxG" firstAttribute="leading" secondItem="lAV-kR-SJj" secondAttribute="leadingMargin" id="iQJ-gf-K6s"/>
-                        <constraint firstItem="xSS-KK-VxG" firstAttribute="centerX" secondItem="lAV-kR-SJj" secondAttribute="centerX" id="mh7-29-UjF"/>
-                        <constraint firstItem="Nw9-ed-YR8" firstAttribute="top" secondItem="xSS-KK-VxG" secondAttribute="bottom" constant="8" id="nMs-6J-okt"/>
-                        <constraint firstItem="DqG-R6-box" firstAttribute="leading" secondItem="lAV-kR-SJj" secondAttribute="leading" constant="8" id="wKe-7b-PIf"/>
-                        <constraint firstItem="DqG-R6-box" firstAttribute="top" secondItem="Nw9-ed-YR8" secondAttribute="bottom" constant="8" id="xjR-kU-AVT"/>
+                        <constraint firstItem="VUm-zM-fos" firstAttribute="width" secondItem="lAV-kR-SJj" secondAttribute="width" id="2l0-S9-ctF"/>
+                        <constraint firstItem="VUm-zM-fos" firstAttribute="top" secondItem="lAV-kR-SJj" secondAttribute="top" id="C7w-Nc-mWb"/>
+                        <constraint firstAttribute="trailing" secondItem="VUm-zM-fos" secondAttribute="trailing" id="OWJ-3X-f3B"/>
+                        <constraint firstItem="VUm-zM-fos" firstAttribute="leading" secondItem="lAV-kR-SJj" secondAttribute="leading" id="XVf-0g-IFx"/>
+                        <constraint firstItem="VUm-zM-fos" firstAttribute="height" secondItem="lAV-kR-SJj" secondAttribute="height" priority="250" id="jdu-6c-IWx"/>
+                        <constraint firstAttribute="bottom" secondItem="VUm-zM-fos" secondAttribute="bottom" id="z6g-kK-UZM"/>
                     </constraints>
                 </scrollView>
             </subviews>
             <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
             <constraints>
                 <constraint firstItem="lAV-kR-SJj" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" constant="8" id="3CS-p6-BrS"/>
-                <constraint firstAttribute="bottom" secondItem="lAV-kR-SJj" secondAttribute="bottom" id="APV-jR-Qh7"/>
+                <constraint firstAttribute="bottom" secondItem="lAV-kR-SJj" secondAttribute="bottom" constant="8" id="APV-jR-Qh7"/>
                 <constraint firstAttribute="trailing" secondItem="lAV-kR-SJj" secondAttribute="trailing" constant="8" id="rFa-Cr-4lN"/>
                 <constraint firstItem="lAV-kR-SJj" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" constant="8" id="va6-AQ-bb1"/>
             </constraints>
-            <point key="canvasLocation" x="-286.5" y="189.5"/>
+            <point key="canvasLocation" x="-659" y="-319"/>
         </view>
     </objects>
     <resources>
