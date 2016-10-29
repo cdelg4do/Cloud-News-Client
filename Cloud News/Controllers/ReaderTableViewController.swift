@@ -72,6 +72,8 @@ class ReaderTableViewController: UITableViewController {
         // Configuración de la vista (título de la noticia, autor y fecha)
         cell?.textLabel?.text = newsTitle!
         cell?.detailTextLabel?.text = "by \(newsWriterId!), \(Utils.dateToString(newsDate!))"
+        
+        cell?.imageView?.contentMode = .scaleAspectFit
         cell?.imageView?.image = UIImage(named: "news_placeholder.png")!
         
         // Si la noticia tiene una imagen asociada, mostrarla (si no está cacheada, se descarga)

@@ -21,6 +21,10 @@ class ReaderNewsDetailViewController: UIViewController {
     @IBOutlet weak var newsImage: UIImageView!
     @IBOutlet weak var locationLabel: UILabel!
     @IBOutlet weak var newsText: UITextView!
+    
+    // Indicador de actividad de la imagen
+    //var imageIndicator: UIActivityIndicatorView?
+    @IBOutlet weak var imageIndicator: UIActivityIndicatorView!
    
     
     // MARK: Propiedades de la clase
@@ -52,8 +56,8 @@ class ReaderNewsDetailViewController: UIViewController {
         
         // Todo el contenido de la vista permanecerá oculto
         // hasta que se carge la información de la noticia
-        
         Utils.changeSubviewsVisibility(ofView: mainView, hide: true)
+        
         loadNewsDetail()
     }
 
@@ -95,7 +99,10 @@ class ReaderNewsDetailViewController: UIViewController {
                                 // La respuesta debe contener 1 elemento,
                                 // lo guardamos y mostramos su información en la vista
                                 self.currentNews = json.first
-                                DispatchQueue.main.async    {   self.syncViewFromModel()    }
+                                
+                                DispatchQueue.main.async    {
+                                    self.syncViewFromModel()
+                                }
         })
     }
     
@@ -166,11 +173,18 @@ class ReaderNewsDetailViewController: UIViewController {
         
         if imageName != nil {
             
+            Utils.switchActivityIndicator(imageIndicator, show: true)
+            
             Utils.downloadBlobImage("\(imageName!).jpg", fromContainer: Backend.newsImageContainerName, activityIndicator: nil) { (image: UIImage?) in
                 
                 if image != nil {
-                    DispatchQueue.main.async { self.newsImage.image = image }
+                    
+                    let resizedImage = Utils.resizeImage(image!, toSize: Utils.screenSize())
+                    
+                    DispatchQueue.main.async { self.newsImage.image = resizedImage }
                 }
+                
+                Utils.switchActivityIndicator(self.imageIndicator, show: false)
             }
         }
     }
