@@ -134,9 +134,9 @@ class Utils {
     // - lat, long: coordenadas de la ubicación que se quiere identificar
     // - completion: clausura de finalización que recibe un String? resultante, que se ejecutará en la cola principal
     
-    class func asyncReverseGeolocation(lat: Double, long: Double, completion: @escaping stringClosure) {
+    class func asyncReverseGeolocation(location: CLLocation, completion: @escaping stringClosure) {
         
-        CLGeocoder().reverseGeocodeLocation(CLLocation(latitude: lat, longitude: long), completionHandler: { (placemarks, error) -> Void in
+        CLGeocoder().reverseGeocodeLocation(location, completionHandler: { (placemarks, error) -> Void in
             
             if error != nil {
                 print("\nERROR: No ha sido posible realizar la geolocalización inversa\n" + (error?.localizedDescription)!)
@@ -211,6 +211,15 @@ class Utils {
     }
     
     
+    // Función que muestra/oculta todas las subvistas de una vista
+    class func changeSubviewsVisibility(ofView parentView: UIView, hide newStatus: Bool) {
+        
+        for view in parentView.subviews {
+            view.isHidden = newStatus
+        }
+    }
+    
+    
     // Función que muestra en un ViewController un diálogo (con un título, un mensaje y un botón de aceptar)
     class func showInfoDialog( who parent: UIViewController, title dialogTitle: String, message dialogMessage: String) {
         
@@ -219,4 +228,48 @@ class Utils {
         parent.present(alert, animated: true, completion: nil)
     }
     
+    
+    // Función que muestra un diálogo (con un título, un mensaje y un botón de cerrar el controlador actual)
+    class func showCloseControllerDialog( who parent: UIViewController, title dialogTitle: String, message dialogMessage: String) {
+        
+        let actionClose = UIAlertAction(title: "Close", style: .default) { (alertAction) in
+            
+            let _ = parent.navigationController?.popViewController(animated: true)
+        }
+        
+        let alert = UIAlertController(title: dialogTitle, message: dialogMessage, preferredStyle: .alert)
+        alert.addAction( actionClose )
+        parent.present(alert, animated: true, completion: nil)
+    }
+    
+    
+    // Función que muestra/oculta un ActivityIndicatorView
+    class func switchActivityIndicator(_ indicator: UIActivityIndicatorView?, show: Bool) {
+        
+        DispatchQueue.main.async {
+            
+            if show {
+                indicator?.isHidden = false
+                indicator?.startAnimating()
+            }
+            else {
+                indicator?.stopAnimating()
+                indicator?.isHidden = true
+            }
+        }
+    }
+    
+    
+    // Función que detiene el pull refresh de un UITableViewController, si estaba teniendo lugar
+    class func stopTableRefreshing(_ controller: UITableViewController) {
+        
+        DispatchQueue.main.async {
+            
+            if (controller.refreshControl?.isRefreshing)! {
+                controller.refreshControl?.endRefreshing()
+            }
+        }
+    }
+    
 }
+

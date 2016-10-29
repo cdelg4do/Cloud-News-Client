@@ -12,6 +12,7 @@
                 <outlet property="authorLabel" destination="bDR-9p-vvj" id="9AE-6T-s01"/>
                 <outlet property="dateLabel" destination="Iuo-MX-nRZ" id="Twg-wR-w9V"/>
                 <outlet property="locationLabel" destination="fX0-Xv-YPo" id="Hza-bd-Wjc"/>
+                <outlet property="mainView" destination="i5M-Pr-FkT" id="d6X-pa-e0y"/>
                 <outlet property="newsImage" destination="OtS-2m-wZl" id="U78-Eb-cH1"/>
                 <outlet property="newsText" destination="Mnt-cZ-3Yo" id="kTU-Ut-Swd"/>
                 <outlet property="titleLabel" destination="OpF-Y4-8cF" id="D4m-g1-eN9"/>
@@ -24,7 +25,7 @@
             <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="lAV-kR-SJj">
+                <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" bounces="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lAV-kR-SJj">
                     <subviews>
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="VUm-zM-fos">
                             <subviews>
@@ -122,7 +123,7 @@
                 <constraint firstAttribute="trailing" secondItem="lAV-kR-SJj" secondAttribute="trailing" constant="8" id="rFa-Cr-4lN"/>
                 <constraint firstItem="lAV-kR-SJj" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" constant="8" id="va6-AQ-bb1"/>
             </constraints>
-            <point key="canvasLocation" x="-1262" y="-344"/>
+            <point key="canvasLocation" x="-2518" y="-268"/>
         </view>
     </objects>
     <resources>

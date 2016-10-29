@@ -23,6 +23,7 @@
 		07246E2F1DC255BC0004B40B /* news_placeholder.png in Resources */ = {isa = PBXBuildFile; fileRef = 07246E2E1DC255BC0004B40B /* news_placeholder.png */; };
 		07246E321DC299570004B40B /* ReaderNewsDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07246E301DC299570004B40B /* ReaderNewsDetailViewController.swift */; };
 		07246E331DC299570004B40B /* ReaderNewsDetailViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 07246E311DC299570004B40B /* ReaderNewsDetailViewController.xib */; };
+		07246E351DC3CA420004B40B /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07246E341DC3CA420004B40B /* Errors.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -44,6 +45,7 @@
 		07246E2E1DC255BC0004B40B /* news_placeholder.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = news_placeholder.png; path = Resources/news_placeholder.png; sourceTree = "<group>"; };
 		07246E301DC299570004B40B /* ReaderNewsDetailViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ReaderNewsDetailViewController.swift; path = Controllers/ReaderNewsDetailViewController.swift; sourceTree = "<group>"; };
 		07246E311DC299570004B40B /* ReaderNewsDetailViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = ReaderNewsDetailViewController.xib; path = Controllers/ReaderNewsDetailViewController.xib; sourceTree = "<group>"; };
+		07246E341DC3CA420004B40B /* Errors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Errors.swift; path = Utils/Errors.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -137,6 +139,7 @@
 			isa = PBXGroup;
 			children = (
 				07246E2C1DC1A3930004B40B /* Utils.swift */,
+				07246E341DC3CA420004B40B /* Errors.swift */,
 			);
 			name = Utils;
 			sourceTree = "<group>";
@@ -223,6 +226,7 @@
 				07246E321DC299570004B40B /* ReaderNewsDetailViewController.swift in Sources */,
 				07246E241DC14E7A0004B40B /* InitialViewController.swift in Sources */,
 				07246E271DC18C790004B40B /* ReaderTableViewController.swift in Sources */,
+				07246E351DC3CA420004B40B /* Errors.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
