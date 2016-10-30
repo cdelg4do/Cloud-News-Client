@@ -24,8 +24,9 @@
 		07246E321DC299570004B40B /* ReaderNewsDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07246E301DC299570004B40B /* ReaderNewsDetailViewController.swift */; };
 		07246E331DC299570004B40B /* ReaderNewsDetailViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 07246E311DC299570004B40B /* ReaderNewsDetailViewController.xib */; };
 		07246E351DC3CA420004B40B /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07246E341DC3CA420004B40B /* Errors.swift */; };
-		078DC6B31DC50BEB00576FFD /* WriterTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078DC6B21DC50BEB00576FFD /* WriterTableViewController.swift */; };
 		078DC6B51DC5C33500576FFD /* UserInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078DC6B41DC5C33500576FFD /* UserInfo.swift */; };
+		078DC6B81DC6750300576FFD /* WriterArticlesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078DC6B61DC6750300576FFD /* WriterArticlesViewController.swift */; };
+		078DC6B91DC6750300576FFD /* WriterArticlesViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 078DC6B71DC6750300576FFD /* WriterArticlesViewController.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -48,8 +49,9 @@
 		07246E301DC299570004B40B /* ReaderNewsDetailViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ReaderNewsDetailViewController.swift; path = Controllers/ReaderNewsDetailViewController.swift; sourceTree = "<group>"; };
 		07246E311DC299570004B40B /* ReaderNewsDetailViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = ReaderNewsDetailViewController.xib; path = Controllers/ReaderNewsDetailViewController.xib; sourceTree = "<group>"; };
 		07246E341DC3CA420004B40B /* Errors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Errors.swift; path = Utils/Errors.swift; sourceTree = "<group>"; };
-		078DC6B21DC50BEB00576FFD /* WriterTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = WriterTableViewController.swift; path = Controllers/WriterTableViewController.swift; sourceTree = "<group>"; };
 		078DC6B41DC5C33500576FFD /* UserInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = UserInfo.swift; path = Backend/UserInfo.swift; sourceTree = "<group>"; };
+		078DC6B61DC6750300576FFD /* WriterArticlesViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = WriterArticlesViewController.swift; path = Controllers/WriterArticlesViewController.swift; sourceTree = "<group>"; };
+		078DC6B71DC6750300576FFD /* WriterArticlesViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = WriterArticlesViewController.xib; path = Controllers/WriterArticlesViewController.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -127,7 +129,8 @@
 				07246E261DC18C790004B40B /* ReaderTableViewController.swift */,
 				07246E301DC299570004B40B /* ReaderNewsDetailViewController.swift */,
 				07246E311DC299570004B40B /* ReaderNewsDetailViewController.xib */,
-				078DC6B21DC50BEB00576FFD /* WriterTableViewController.swift */,
+				078DC6B61DC6750300576FFD /* WriterArticlesViewController.swift */,
+				078DC6B71DC6750300576FFD /* WriterArticlesViewController.xib */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -210,6 +213,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				078DC6B91DC6750300576FFD /* WriterArticlesViewController.xib in Resources */,
 				07246E0E1DC137AC0004B40B /* LaunchScreen.storyboard in Resources */,
 				07246E211DC146600004B40B /* no_image.png in Resources */,
 				07246E0B1DC137AC0004B40B /* Assets.xcassets in Resources */,
@@ -232,7 +236,7 @@
 				07246E321DC299570004B40B /* ReaderNewsDetailViewController.swift in Sources */,
 				07246E241DC14E7A0004B40B /* InitialViewController.swift in Sources */,
 				07246E271DC18C790004B40B /* ReaderTableViewController.swift in Sources */,
-				078DC6B31DC50BEB00576FFD /* WriterTableViewController.swift in Sources */,
+				078DC6B81DC6750300576FFD /* WriterArticlesViewController.swift in Sources */,
 				078DC6B51DC5C33500576FFD /* UserInfo.swift in Sources */,
 				07246E351DC3CA420004B40B /* Errors.swift in Sources */,
 			);

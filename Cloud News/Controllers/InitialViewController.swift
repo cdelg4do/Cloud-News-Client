@@ -31,7 +31,7 @@ class InitialViewController: UIViewController {
     @IBAction func authorMode(_ sender: AnyObject) {
         
         // Crear el controlador para mostrar la lista de noticias del autor, y mostrarlo
-        let writerVC = WriterTableViewController(nibName: nil, bundle: nil)
+        let writerVC = WriterArticlesViewController(nibName: nil, bundle: nil)
         navigationController?.pushViewController(writerVC, animated: true)
     }
     

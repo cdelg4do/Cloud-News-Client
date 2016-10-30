@@ -271,5 +271,15 @@ class Utils {
         }
     }
     
+    class func stopTableRefreshing(_ refreshControl: UIRefreshControl?) {
+        
+        DispatchQueue.main.async {
+            
+            if (refreshControl?.isRefreshing)! {
+                refreshControl?.endRefreshing()
+            }
+        }
+    }
+    
 }
 
