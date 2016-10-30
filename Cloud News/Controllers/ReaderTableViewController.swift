@@ -22,13 +22,19 @@ class ReaderTableViewController: UITableViewController {
     let emptyLabel = UILabel()  // Etiqueta para mostrar, en caso de que no haya datos en la tabla
     
     
-    // MARK: Inicialización del controlador
+    // MARK: Ciclo de vida del controlador
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         setupUI()
         loadNews(originIsPullRefresh: false)
+    }
+    
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+        
+        thumbsCache.removeAll()
     }
     
 

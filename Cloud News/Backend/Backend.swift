@@ -14,6 +14,15 @@ import Foundation
 typealias DatabaseRecord = Dictionary<String, AnyObject>
 
 
+enum ArticleStatus: String {
+    
+    case draft      = "draft"
+    case submitted  = "submitted"
+    case published  = "published"
+    case unknown    = "Unknown"
+}
+
+
 class Backend {
     
     // Url del App Service de Azure
@@ -22,6 +31,8 @@ class Backend {
     // Endpoints de la API del servidor
     static let publishedNewsApiName: String = "published_news"
     static let readNewsApiName: String = "read_news"
+    static let writerInfoApiName: String = "writer_info"
+    static let myArticlesApiName: String = "my_articles"
     
     // Credenciales para la cuenta de Azure Storage
     static let storageAccountName: String = "cloudnewsstorage"

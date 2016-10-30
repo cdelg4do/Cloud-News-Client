@@ -14,6 +14,7 @@ import Foundation
 // (derivados de Error para poder devolverlos con un throw)
 enum JsonError: Error {
     
+    case wrongJSONFieldFormat
     case missingJSONField
     case nilJSONObject
 }
