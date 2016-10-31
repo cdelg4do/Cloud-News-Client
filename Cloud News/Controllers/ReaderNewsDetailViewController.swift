@@ -23,7 +23,6 @@ class ReaderNewsDetailViewController: UIViewController {
     @IBOutlet weak var newsText: UITextView!
     
     // Indicador de actividad de la imagen
-    //var imageIndicator: UIActivityIndicatorView?
     @IBOutlet weak var imageIndicator: UIActivityIndicatorView!
    
     
@@ -33,15 +32,23 @@ class ReaderNewsDetailViewController: UIViewController {
     var currentNewsId: String           // Id de la noticia a mostrar
     var currentNews: DatabaseRecord?    // Contenedor para los datos del registro de la BBDD sobre la noticia a mostrar
     
+    let useAnonymousApi: Bool
+    
     
     // MARK: Inicialización de la clase
     
-    init(id: String, client: MSClient) {
+    init(id: String, anonymous: Bool, client: MSClient) {
         
         self.currentNewsId = id
+        self.useAnonymousApi = anonymous
         self.appClient = client
         
         super.init(nibName: nil, bundle: nil)
+    }
+    
+    convenience init(id: String, client: MSClient) {
+        
+        self.init(id: id, anonymous: true, client: client)
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -71,7 +78,12 @@ class ReaderNewsDetailViewController: UIViewController {
     // Descarga del servidor los datos de la noticia y los muestra en la vista
     func loadNewsDetail() {
         
-        appClient.invokeAPI(Backend.readNewsApiName,
+        let remoteApi: String
+        
+        if (useAnonymousApi)    {   remoteApi = Backend.readNewsApiName     }    // Api anónima, solo noticias ya publicadas
+        else                    {   remoteApi = Backend.readArticleApiName }    // Con autenticación, también para artículos entregados
+        
+        appClient.invokeAPI(remoteApi,
                             body: nil,
                             httpMethod: "GET",
                             parameters: ["newsId": currentNewsId],
@@ -79,13 +91,13 @@ class ReaderNewsDetailViewController: UIViewController {
                             completion: { (result, response, error) in
                                 
                                 if let _ = error {
-                                    print("\nFallo al invocar la api 'read_news':\n\(error)\n")
+                                    print("\nFallo al invocar la api '\(remoteApi)':\n\(error)\n")
                                     Utils.showCloseControllerDialog(who: self, title: "Error", message: "Unable to retrieve remote data, please try again.")
                                     return
                                 }
                                 
                                 // Si la petición se realizó correctamente, convertir el JSON recibido en una lista de DatabaseRecord
-                                print("\nResultado de la invocación a 'read_news':\n\(result!)\n")
+                                print("\nResultado de la invocación a '\(remoteApi)':\n\(result!)\n")
                                 let json = result as! [DatabaseRecord]
                                 
                                 // Si la respuesta recibida no contiene elementos,
@@ -123,7 +135,7 @@ class ReaderNewsDetailViewController: UIViewController {
             // Campos que obligatoriamente deben haberse recibido
             titleString = thisNews["title"] as? String
             authorString = thisNews["writer"] as? String
-            newsDate = thisNews["publishedAt"] as? NSDate
+            newsDate = thisNews["date"] as? NSDate
             viewCount = thisNews["visits"] as? Int
             content = thisNews["text"] as? String
             
@@ -150,8 +162,10 @@ class ReaderNewsDetailViewController: UIViewController {
         titleLabel.text = titleString
         authorLabel.text = "by " + authorString!
         dateLabel.text = Utils.dateToString(newsDate!)
-        viewsLabel.text = "\(viewCount!+1) views"
         newsText.text = content
+        
+        if useAnonymousApi  {   viewsLabel.text = "\(viewCount!+1) views"   }
+        else                {   viewsLabel.text = "\(viewCount!) views"   }
         
         if newsLocation != nil  {   locationLabel.text = "Resolving location..."}
         else                    {   locationLabel.text = "(Unknown location)"   }

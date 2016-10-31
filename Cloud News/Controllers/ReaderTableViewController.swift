@@ -17,6 +17,7 @@ class ReaderTableViewController: UITableViewController {
     var appClient: MSClient = MSClient(applicationURL: URL(string: Backend.mobileAppUrlString)!)    // Cliente de Azure Mobile
     var newsList: [DatabaseRecord]? = []    // Lista de noticias a mostrar en la tabla
     var thumbsCache = [String:UIImage]()    // Caché de miniaturas
+    var writersCache = [String:String]()   // Caché de nombres de autores
     
     let indicator = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.gray)  // Indicador de actividad de la tabla
     let emptyLabel = UILabel()  // Etiqueta para mostrar, en caso de que no haya datos en la tabla
@@ -35,6 +36,7 @@ class ReaderTableViewController: UITableViewController {
         super.didReceiveMemoryWarning()
         
         thumbsCache.removeAll()
+        writersCache.removeAll()
     }
     
 
@@ -77,10 +79,31 @@ class ReaderTableViewController: UITableViewController {
         
         // Configuración de la vista (título de la noticia, autor y fecha)
         cell?.textLabel?.text = newsTitle!
-        cell?.detailTextLabel?.text = "by \(newsWriterId!), \(Utils.dateToString(newsDate!))"
+        cell?.detailTextLabel?.text = "\(Utils.dateToString(newsDate!))"
         
         cell?.imageView?.contentMode = .scaleAspectFit
         cell?.imageView?.image = UIImage(named: "news_placeholder.png")!
+        
+        
+        // Obtención del nombre del autor
+        if let cachedName = writersCache[newsId!] {
+            cell?.detailTextLabel?.text = "\(cachedName), \(Utils.dateToString(newsDate!))"
+        }
+        else {
+            Utils.asyncGetFacebookUserInfo(userId: newsWriterId!, withClient: appClient) { (user: UserInfo?) in
+                
+                // Si se resolvió el nombre correctamente, cachearlo y actualizar la vista (en la cola principal)
+                if user != nil {
+                    
+                    let name = user!.fullName
+                    self.writersCache[newsId!] = name
+                    DispatchQueue.main.async {
+                        cell?.detailTextLabel?.text = "\(name), \(Utils.dateToString(newsDate!))"
+                    }
+                }
+            }
+        }
+        
         
         // Si la noticia tiene una imagen asociada, mostrarla (si no está cacheada, se descarga)
         if newsImageName != nil {
@@ -145,7 +168,7 @@ class ReaderTableViewController: UITableViewController {
                             self.newsList?.removeAll()
                             
                             if let _ = error {
-                                print("\nFallo al invocar la api 'published_news':\n\(error)\n")
+                                print("\nFallo al invocar la api '\(Backend.publishedNewsApiName)':\n\(error)\n")
                                 Utils.showInfoDialog(who: self, title: "Error", message: "Unable to load the published news.")
                                 
                                 self.updateViewFromModel()
@@ -153,7 +176,7 @@ class ReaderTableViewController: UITableViewController {
                             }
                             
                             // Si hemos llegado hasta aquí, es que la petición se realizó correctamente
-                            print("\nResultado de la invocación a 'published_news':\n\(result!)\n")
+                            print("\nResultado de la invocación a '\(Backend.publishedNewsApiName)':\n\(result!)\n")
                             
                             // Convertir el JSON recibido en una lista de DatabaseRecord y añadir al modelo
                             // solo los registros correctos (los que incluyan, al menos: id, title, writer y publishedAt)
@@ -175,11 +198,12 @@ class ReaderTableViewController: UITableViewController {
         })
     }
     
-    // Realiza la carga de noticias y actualiza la vista, eliminando primero la caché de imágenes
+    // Realiza la carga de noticias y actualiza la vista, eliminando primero las cachés de imágenes y nombres
     // (para ejecutar cuando el usuario haga un pull refresh)
     func fullLoadNews() {
         
         thumbsCache.removeAll()
+        writersCache.removeAll()
         loadNews(originIsPullRefresh: true)
     }
     
@@ -245,6 +269,5 @@ class ReaderTableViewController: UITableViewController {
             }
         }
     }
-    
 
 }

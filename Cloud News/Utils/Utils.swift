@@ -13,12 +13,13 @@ import CoreLocation
 
 class Utils {
     
-    // Clausuras de finalización, funciones que reciben un UIImage?, un Data?, o un String?
+    // Clausuras de finalización, funciones que reciben un UIImage?, un Data?, un String? o un UserInfo?
     // y que se ejecutarán siempre en la cola principal
     
     typealias imageClosure = (UIImage?) -> ()
     typealias dataClosure = (Data?) -> ()
     typealias stringClosure = (String?) -> ()
+    typealias userClosure = (UserInfo?) -> ()
     
     
     // Función que realiza la descarga de un blob de una imagen contenida en un Storage Container remoto, en segundo plano
@@ -80,48 +81,34 @@ class Utils {
     }
     
     
-    // Función que realiza la descarga de datos de una URL remota en segundo plano
-    // Si la descarga se realiza con éxito, produce el Data resultante.
-    // Si no, produce nil.
-    //
-    // Parámetros:
-    //
-    // - fromUrl: cadena con la url remota
-    // - activityIndicator: activa y desactiva el indicador de actividad antes y después de la operación asíncrona (si no se usa, dejar a nil)
-    // - completion: clausura de finalización que recibe un Data? resultante, que se ejecutará en la cola principal
+    // Obtención de un objeto UserInfo? con la información del usuario de facebook indicado por userId.
+    // El objeto obtenido, se tratará en una clausura de tipo userClosure.
     
-    class func asyncDownloadData(fromUrl urlString: String, activityIndicator: UIActivityIndicatorView?, completion: @escaping dataClosure) {
+    class func asyncGetFacebookUserInfo(userId: String, withClient appClient: MSClient, completion: @escaping userClosure) {
         
-        activityIndicator?.isHidden = false
-        activityIndicator?.startAnimating()
-        
-        // Carga de datos (en segundo plano)
-        DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + .seconds(1) ) {
-            
-            var remoteData: Data?
-            
-            do {
-                let remoteURL = URL(string: urlString)
-                
-                if remoteURL != nil {   remoteData = try Data(contentsOf: remoteURL!, options: Data.ReadingOptions.mappedIfSafe)    }
-                else                {   remoteData = nil    }
-            }
-            catch {
-                remoteData = nil
-            }
-            
-            // Pasar los datos obtenidos a la clausura de finalización (en la cola principal)
-            DispatchQueue.main.async {
-                
-                activityIndicator?.stopAnimating()
-                activityIndicator?.isHidden = true
-                
-                completion(remoteData)
-            }
-        }
+        // Invocar a la API remota que devuelve todas las noticias publicadas
+        appClient.invokeAPI(Backend.fbGraphApiName,
+                            body: nil,
+                            httpMethod: "GET",
+                            parameters: ["id": userId],
+                            headers: nil,
+                            completion: { (result, response, error) in
+                                
+                                if let _ = error {
+                                    print("\nError al invocar a '\(Backend.fbGraphApiName)':\n\(error!)\n")
+                                    completion(nil)
+                                    return
+                                }
+                                
+                                // Si la petición se realizó correctamente, convertir el objeto recibido en un JsonElement
+                                // y validar si es correcto
+                                print("\nResultado de la invocación a '\(Backend.fbGraphApiName)':\n\(result!)\n")
+                                let userInfo = UserInfo.validate(result as! JsonElement)
+                                completion(userInfo)
+        })
         
     }
-    
+ 
     
     // Función que obtiene (en segundo plano) la dirección física correspondiente a unas coordenadas
     // Si la dirección dispone de varios niveles de detalle, devolverá solo los dos niveles más generales (ej. Provincia y País)

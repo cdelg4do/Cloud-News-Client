@@ -18,7 +18,7 @@ class WriterArticlesViewController: UIViewController {
     
     var currentArticleStatus: ArticleStatus = ArticleStatus.draft   // Estado de los artículos que se muestran (por defecto: borradores)
     
-    var userInfo: UserInfo?
+    var sessionInfo: SessionInfo?
     
     
     // MARK: Elementos de la interfaz
@@ -38,9 +38,6 @@ class WriterArticlesViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        tableView.delegate = self
-        tableView.dataSource = self
         
         setupUI()
         
@@ -101,15 +98,29 @@ extension WriterArticlesViewController: UITableViewDataSource {
         // Obtener los datos del artículo correspondiente a la celda
         let article = articleList?[indexPath.row]
         
-        let articleDate: NSDate?
-        
         let articleId = article?["id"] as! String?
         let articleTitle = article?["title"] as! String?
-        let articleViews = article?["visits"] as? Int           // El número de visitas es opcional
+        let articleVisits = article?["visits"] as! Int?
+        let articleDate = article?["date"] as! NSDate?
         let articleImageName = article?["image"] as? String     // La imágen es opcional
         
-        if currentArticleStatus == .published   {   articleDate = article?["publishedAt"] as! NSDate? }
-        else                                    {   articleDate = article?["updatedAt"] as! NSDate? }
+        let dateString = Utils.dateToString(articleDate!)
+        var detailLabelText: String
+        
+        switch (currentArticleStatus) {
+            
+            case .published:    detailLabelText = "\(articleVisits!) views since \(dateString)"
+                                break
+            
+            case .submitted:    detailLabelText = "Submitted on \(dateString)"
+                                break
+        
+            case .draft:        detailLabelText = "Last updated on \(dateString)"
+                                break
+            
+            default:            detailLabelText = ""
+        }
+        
         
         // Obtención de la celda correspondiente al elemento
         let cellId = "articleCell"
@@ -121,13 +132,7 @@ extension WriterArticlesViewController: UITableViewDataSource {
         
         // Configuración de la vista (título de la noticia, visitas y fecha)
         cell?.textLabel?.text = articleTitle!
-        
-        if currentArticleStatus == .published {
-            cell?.detailTextLabel?.text = "\(articleViews!) views since \(Utils.dateToString(articleDate!))"
-        }
-        else {
-            cell?.detailTextLabel?.text = "Last updated on \(Utils.dateToString(articleDate!))"
-        }
+        cell?.detailTextLabel?.text = detailLabelText
         
         cell?.imageView?.contentMode = .scaleAspectFit
         cell?.imageView?.image = UIImage(named: "news_placeholder.png")!
@@ -170,10 +175,10 @@ extension WriterArticlesViewController: UITableViewDelegate {
         
         // Si estamos viendo un artículo entregado o ya publicado,
         // se muestra el controlador de lectura (ReaderNewsDetailViewController)
-        if currentArticleStatus == .published
-            || currentArticleStatus == .submitted {
+        // usando una api con autenticación para cargar los detalles
+        if currentArticleStatus == .published || currentArticleStatus == .submitted {
             
-            let detailVC = ReaderNewsDetailViewController(id: newsId!, client: appClient)
+            let detailVC = ReaderNewsDetailViewController(id: newsId!, anonymous: false, client: appClient)
             navigationController?.pushViewController(detailVC, animated: true)
         }
 /*
@@ -210,7 +215,7 @@ extension WriterArticlesViewController {
             // Si se inició sesión correctamente, obtener los datos del usuario logueado (nombre, etc)
             print("\nInicio de sesión correcto en Facebook con el usuario:\n\((user?.userId)!)\n")
             
-            self.appClient.invokeAPI(Backend.writerInfoApiName,
+            self.appClient.invokeAPI(Backend.sessionInfoApiName,
                                      body: nil,
                                      httpMethod: "GET",
                                      parameters: nil,
@@ -218,20 +223,20 @@ extension WriterArticlesViewController {
                                      completion: { (result, response, error) in
                                         
                                         if let _ = error {
-                                            print("\nFallo al invocar la api '\(Backend.writerInfoApiName)':\n\(error)\n")
+                                            print("\nFallo al invocar la api '\(Backend.sessionInfoApiName)':\n\(error)\n")
                                             Utils.showInfoDialog(who: self, title: "Error", message: "Unable to identify facebook user.")
                                             return
                                         }
                                         
                                         // Almacenamos la información del usuario
-                                        print("\nResultado de la invocación a '\(Backend.writerInfoApiName)':\n\(result!)\n")
+                                        print("\nResultado de la invocación a '\(Backend.sessionInfoApiName)':\n\(result!)\n")
                                         
                                         let json = result as! JsonElement
                                         
-                                        self.userInfo = UserInfo.validate(json)
+                                        self.sessionInfo = SessionInfo.validate(json)
                                         
-                                        if self.userInfo == nil {
-                                            print("\nRespuesta incorrecta desde '\(Backend.writerInfoApiName)':\n\(result)\n")
+                                        if self.sessionInfo == nil {
+                                            print("\nRespuesta incorrecta desde '\(Backend.sessionInfoApiName)':\n\(result)\n")
                                             Utils.showInfoDialog(who: self, title: "Error", message: "Unable to identify facebook user.")
                                             return
                                         }
@@ -258,7 +263,7 @@ extension WriterArticlesViewController {
         
         // Invocar a la API remota que devuelve todos los artículos del tipo actual
         
-        appClient.invokeAPI("test_service",
+        appClient.invokeAPI(Backend.myArticlesApiName,
                             body: nil,
                             httpMethod: "GET",
                             parameters: ["status": currentArticleStatus.rawValue],
@@ -280,16 +285,15 @@ extension WriterArticlesViewController {
                                 print("\nResultado de la invocación a '\(Backend.myArticlesApiName)':\n\(result!)\n")
                                 
                                 // Convertir el JSON recibido en una lista de DatabaseRecord y añadir al modelo
-                                // solo los registros correctos (los que incluyan, al menos: id, title, visits y publishedAt/updatedAt)
+                                // solo los registros correctos: (deben incluir: id, title, visits y date)
                                 let json = result as! [DatabaseRecord]
                                 
                                 for article in json {
                                     
                                     if article["id"] == nil
                                         || article["title"] == nil
-                                        || (self.currentArticleStatus == .published && article["visits"] == nil)
-                                        || (self.currentArticleStatus == .published && article["publishedAt"] == nil)
-                                        || (self.currentArticleStatus != .published && article["updatedAt"] == nil) {
+                                        || article["visits"] == nil
+                                        || article["date"] == nil {
                                         
                                         print("\nDescartado un elemento del JSON por campos incorrectos/ausentes\n")
                                     }

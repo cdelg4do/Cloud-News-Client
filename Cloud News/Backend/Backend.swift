@@ -31,8 +31,10 @@ class Backend {
     // Endpoints de la API del servidor
     static let publishedNewsApiName: String = "published_news"
     static let readNewsApiName: String = "read_news"
-    static let writerInfoApiName: String = "writer_info"
+    static let readArticleApiName: String = "read_article"
+    static let sessionInfoApiName: String = "session_info"
     static let myArticlesApiName: String = "my_articles"
+    static let fbGraphApiName: String = "fbapigraph_query"
     
     // Credenciales para la cuenta de Azure Storage
     static let storageAccountName: String = "cloudnewsstorage"
@@ -40,4 +42,9 @@ class Backend {
     
     // Container para las imágenes de las noticias
     static let newsImageContainerName: String = "news-images"
+    
+    // Identificación de la Facebook App asociada
+    static let fbAppId: String = "297565897303694"
+    static let fbAppKey: String = "04b8dbc978f93a47b0200eacb87bed0e"
+    
 }

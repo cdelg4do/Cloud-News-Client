@@ -24,9 +24,10 @@
 		07246E321DC299570004B40B /* ReaderNewsDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07246E301DC299570004B40B /* ReaderNewsDetailViewController.swift */; };
 		07246E331DC299570004B40B /* ReaderNewsDetailViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 07246E311DC299570004B40B /* ReaderNewsDetailViewController.xib */; };
 		07246E351DC3CA420004B40B /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07246E341DC3CA420004B40B /* Errors.swift */; };
-		078DC6B51DC5C33500576FFD /* UserInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078DC6B41DC5C33500576FFD /* UserInfo.swift */; };
 		078DC6B81DC6750300576FFD /* WriterArticlesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078DC6B61DC6750300576FFD /* WriterArticlesViewController.swift */; };
 		078DC6B91DC6750300576FFD /* WriterArticlesViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 078DC6B71DC6750300576FFD /* WriterArticlesViewController.xib */; };
+		078DC6BB1DC6E6E100576FFD /* SessionInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078DC6BA1DC6E6E100576FFD /* SessionInfo.swift */; };
+		078DC6BD1DC6E7E900576FFD /* UserInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078DC6BC1DC6E7E900576FFD /* UserInfo.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -49,9 +50,10 @@
 		07246E301DC299570004B40B /* ReaderNewsDetailViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ReaderNewsDetailViewController.swift; path = Controllers/ReaderNewsDetailViewController.swift; sourceTree = "<group>"; };
 		07246E311DC299570004B40B /* ReaderNewsDetailViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = ReaderNewsDetailViewController.xib; path = Controllers/ReaderNewsDetailViewController.xib; sourceTree = "<group>"; };
 		07246E341DC3CA420004B40B /* Errors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Errors.swift; path = Utils/Errors.swift; sourceTree = "<group>"; };
-		078DC6B41DC5C33500576FFD /* UserInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = UserInfo.swift; path = Backend/UserInfo.swift; sourceTree = "<group>"; };
 		078DC6B61DC6750300576FFD /* WriterArticlesViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = WriterArticlesViewController.swift; path = Controllers/WriterArticlesViewController.swift; sourceTree = "<group>"; };
 		078DC6B71DC6750300576FFD /* WriterArticlesViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = WriterArticlesViewController.xib; path = Controllers/WriterArticlesViewController.xib; sourceTree = "<group>"; };
+		078DC6BA1DC6E6E100576FFD /* SessionInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SessionInfo.swift; path = Backend/SessionInfo.swift; sourceTree = "<group>"; };
+		078DC6BC1DC6E7E900576FFD /* UserInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = UserInfo.swift; path = Backend/UserInfo.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -139,7 +141,8 @@
 			isa = PBXGroup;
 			children = (
 				07246E291DC18F050004B40B /* Backend.swift */,
-				078DC6B41DC5C33500576FFD /* UserInfo.swift */,
+				078DC6BA1DC6E6E100576FFD /* SessionInfo.swift */,
+				078DC6BC1DC6E7E900576FFD /* UserInfo.swift */,
 			);
 			name = Backend;
 			sourceTree = "<group>";
@@ -232,12 +235,13 @@
 			files = (
 				07246E2D1DC1A3930004B40B /* Utils.swift in Sources */,
 				07246E2A1DC18F050004B40B /* Backend.swift in Sources */,
+				078DC6BB1DC6E6E100576FFD /* SessionInfo.swift in Sources */,
 				07246E041DC137AC0004B40B /* AppDelegate.swift in Sources */,
 				07246E321DC299570004B40B /* ReaderNewsDetailViewController.swift in Sources */,
 				07246E241DC14E7A0004B40B /* InitialViewController.swift in Sources */,
 				07246E271DC18C790004B40B /* ReaderTableViewController.swift in Sources */,
 				078DC6B81DC6750300576FFD /* WriterArticlesViewController.swift in Sources */,
-				078DC6B51DC5C33500576FFD /* UserInfo.swift in Sources */,
+				078DC6BD1DC6E7E900576FFD /* UserInfo.swift in Sources */,
 				07246E351DC3CA420004B40B /* Errors.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
