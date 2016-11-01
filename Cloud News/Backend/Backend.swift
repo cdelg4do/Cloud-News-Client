@@ -35,6 +35,8 @@ class Backend {
     static let sessionInfoApiName: String = "session_info"
     static let myArticlesApiName: String = "my_articles"
     static let fbGraphApiName: String = "fbapigraph_query"
+    static let draftApiName: String = "draft"
+    static let submittedApiName: String = "submitted"
     
     // Credenciales para la cuenta de Azure Storage
     static let storageAccountName: String = "cloudnewsstorage"

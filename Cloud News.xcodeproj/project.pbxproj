@@ -28,6 +28,8 @@
 		078DC6B91DC6750300576FFD /* WriterArticlesViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 078DC6B71DC6750300576FFD /* WriterArticlesViewController.xib */; };
 		078DC6BB1DC6E6E100576FFD /* SessionInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078DC6BA1DC6E6E100576FFD /* SessionInfo.swift */; };
 		078DC6BD1DC6E7E900576FFD /* UserInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078DC6BC1DC6E7E900576FFD /* UserInfo.swift */; };
+		078DC6C01DC75BAC00576FFD /* ArticleEditorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078DC6BE1DC75BAC00576FFD /* ArticleEditorViewController.swift */; };
+		078DC6C11DC75BAC00576FFD /* ArticleEditorViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 078DC6BF1DC75BAC00576FFD /* ArticleEditorViewController.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -54,6 +56,8 @@
 		078DC6B71DC6750300576FFD /* WriterArticlesViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = WriterArticlesViewController.xib; path = Controllers/WriterArticlesViewController.xib; sourceTree = "<group>"; };
 		078DC6BA1DC6E6E100576FFD /* SessionInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SessionInfo.swift; path = Backend/SessionInfo.swift; sourceTree = "<group>"; };
 		078DC6BC1DC6E7E900576FFD /* UserInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = UserInfo.swift; path = Backend/UserInfo.swift; sourceTree = "<group>"; };
+		078DC6BE1DC75BAC00576FFD /* ArticleEditorViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ArticleEditorViewController.swift; path = Controllers/ArticleEditorViewController.swift; sourceTree = "<group>"; };
+		078DC6BF1DC75BAC00576FFD /* ArticleEditorViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = ArticleEditorViewController.xib; path = Controllers/ArticleEditorViewController.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -133,6 +137,8 @@
 				07246E311DC299570004B40B /* ReaderNewsDetailViewController.xib */,
 				078DC6B61DC6750300576FFD /* WriterArticlesViewController.swift */,
 				078DC6B71DC6750300576FFD /* WriterArticlesViewController.xib */,
+				078DC6BE1DC75BAC00576FFD /* ArticleEditorViewController.swift */,
+				078DC6BF1DC75BAC00576FFD /* ArticleEditorViewController.xib */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -218,6 +224,7 @@
 			files = (
 				078DC6B91DC6750300576FFD /* WriterArticlesViewController.xib in Resources */,
 				07246E0E1DC137AC0004B40B /* LaunchScreen.storyboard in Resources */,
+				078DC6C11DC75BAC00576FFD /* ArticleEditorViewController.xib in Resources */,
 				07246E211DC146600004B40B /* no_image.png in Resources */,
 				07246E0B1DC137AC0004B40B /* Assets.xcassets in Resources */,
 				07246E331DC299570004B40B /* ReaderNewsDetailViewController.xib in Resources */,
@@ -236,6 +243,7 @@
 				07246E2D1DC1A3930004B40B /* Utils.swift in Sources */,
 				07246E2A1DC18F050004B40B /* Backend.swift in Sources */,
 				078DC6BB1DC6E6E100576FFD /* SessionInfo.swift in Sources */,
+				078DC6C01DC75BAC00576FFD /* ArticleEditorViewController.swift in Sources */,
 				07246E041DC137AC0004B40B /* AppDelegate.swift in Sources */,
 				07246E321DC299570004B40B /* ReaderNewsDetailViewController.swift in Sources */,
 				07246E241DC14E7A0004B40B /* InitialViewController.swift in Sources */,

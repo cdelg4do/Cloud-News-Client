@@ -67,7 +67,8 @@ class ReaderTableViewController: UITableViewController {
         let newsTitle = thisNews?["title"] as! String?
         let newsWriterId = thisNews?["writer"] as! String?
         let newsDate = thisNews?["publishedAt"] as! NSDate?
-        let newsImageName = thisNews?["image"] as? String     // La imágen es opcional
+        let hasImage = thisNews?["hasImage"] as! Bool?
+        let imageName = thisNews?["imageName"] as! String?
         
         // Obtención de la celda correspondiente al elemento
         let cellId = "newsCell"
@@ -106,13 +107,13 @@ class ReaderTableViewController: UITableViewController {
         
         
         // Si la noticia tiene una imagen asociada, mostrarla (si no está cacheada, se descarga)
-        if newsImageName != nil {
+        if hasImage! {
             
             if let cachedImage = thumbsCache[newsId!] {
                 cell?.imageView?.image = cachedImage
             }
             else {
-                let thumbnailName = "\(newsImageName!)_thumb.jpg"
+                let thumbnailName = "\(imageName!)_thumb.jpg"
                 
                 Utils.downloadBlobImage(thumbnailName, fromContainer: Backend.newsImageContainerName, activityIndicator: nil) { (image: UIImage?) in
                     
@@ -179,12 +180,17 @@ class ReaderTableViewController: UITableViewController {
                             print("\nResultado de la invocación a '\(Backend.publishedNewsApiName)':\n\(result!)\n")
                             
                             // Convertir el JSON recibido en una lista de DatabaseRecord y añadir al modelo
-                            // solo los registros correctos (los que incluyan, al menos: id, title, writer y publishedAt)
+                            // solo los registros correctos (los que incluyan, al menos: id, title, writer, imagen y publishedAt)
                             let json = result as! [DatabaseRecord]
                             
                             for news in json {
                                 
-                                if news["id"] == nil || news["title"] == nil || news["writer"] == nil || news["publishedAt"] == nil {
+                                if news["id"] == nil
+                                    || news["title"] == nil
+                                    || news["writer"] == nil
+                                    || news["hasImage"] == nil
+                                    || news["imageName"] == nil
+                                    || news["publishedAt"] == nil {
                                     
                                     print("\nDescartado un del JSON elemento por campos incorrectos/ausentes\n")
                                 }

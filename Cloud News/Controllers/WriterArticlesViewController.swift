@@ -21,6 +21,7 @@ class WriterArticlesViewController: UIViewController {
     var sessionInfo: SessionInfo?
     
     
+    
     // MARK: Elementos de la interfaz
     
     let indicator = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.gray)  // Indicador de actividad de la tabla
@@ -102,7 +103,8 @@ extension WriterArticlesViewController: UITableViewDataSource {
         let articleTitle = article?["title"] as! String?
         let articleVisits = article?["visits"] as! Int?
         let articleDate = article?["date"] as! NSDate?
-        let articleImageName = article?["image"] as? String     // La imágen es opcional
+        let articleHasImage = article?["hasImage"] as! Bool?
+        let articleImageName = article?["imageName"] as! String?
         
         let dateString = Utils.dateToString(articleDate!)
         var detailLabelText: String
@@ -149,7 +151,7 @@ extension WriterArticlesViewController: UITableViewDataSource {
                 Utils.downloadBlobImage(thumbnailName, fromContainer: Backend.newsImageContainerName, activityIndicator: nil) { (image: UIImage?) in
                     
                     // Si se descargó la imagen remota, cachearla y actualizar la vista (en la cola principal)
-                    if image != nil {
+                    if articleHasImage! {
                         
                         self.thumbsCache[articleId!] = image!
                         DispatchQueue.main.async {
@@ -181,14 +183,14 @@ extension WriterArticlesViewController: UITableViewDelegate {
             let detailVC = ReaderNewsDetailViewController(id: newsId!, anonymous: false, client: appClient)
             navigationController?.pushViewController(detailVC, animated: true)
         }
-/*
+
         // Si es un borrador, se muestra el controlador de edición (WriterArticleDetailController)
         else {
          
-            let detailVC = WriterArticleDetailController(id: newsId!, client: appClient)
+            let detailVC = ArticleEditorViewController(id: newsId!, client: appClient)
             navigationController?.pushViewController(detailVC, animated: true)
         }
-*/
+
     }
 
 }
@@ -232,7 +234,6 @@ extension WriterArticlesViewController {
                                         print("\nResultado de la invocación a '\(Backend.sessionInfoApiName)':\n\(result!)\n")
                                         
                                         let json = result as! JsonElement
-                                        
                                         self.sessionInfo = SessionInfo.validate(json)
                                         
                                         if self.sessionInfo == nil {
@@ -285,13 +286,15 @@ extension WriterArticlesViewController {
                                 print("\nResultado de la invocación a '\(Backend.myArticlesApiName)':\n\(result!)\n")
                                 
                                 // Convertir el JSON recibido en una lista de DatabaseRecord y añadir al modelo
-                                // solo los registros correctos: (deben incluir: id, title, visits y date)
+                                // solo los registros correctos: (deben incluir: id, title, hasImage, imageName, visits, date)
                                 let json = result as! [DatabaseRecord]
                                 
                                 for article in json {
                                     
                                     if article["id"] == nil
                                         || article["title"] == nil
+                                        || article["hasImage"] == nil
+                                        || article["imageName"] == nil
                                         || article["visits"] == nil
                                         || article["date"] == nil {
                                         
@@ -317,7 +320,7 @@ extension WriterArticlesViewController {
     }
     
     
-    // Mostrar en la vista los datos del usuario (nombre, etc)
+    // Usar esta función para mostrar algún dato del usuario (nombre, etc)
     func setupUserUIElements() {
         
     }
@@ -325,6 +328,9 @@ extension WriterArticlesViewController {
     
     // Configuración inicial de los elementos de la UI de este controlador
     func setupUI() {
+        
+        // Añadir botón de crear nuevo artículo
+        addNewArticleButton()
         
         // Etiqueta para mostrar si no hay datos en la tabla
         emptyLabel.text = "No news to show right now, please pull down to refresh."
@@ -334,7 +340,6 @@ extension WriterArticlesViewController {
         emptyLabel.sizeToFit()
         
         // RefreshControl para refrescar la tabla tirando de ella hacia abajo (pull refresh)
-
         refreshControl = UIRefreshControl()
         refreshControl?.backgroundColor = UIColor.clear
         refreshControl?.tintColor = UIColor.black
@@ -345,7 +350,6 @@ extension WriterArticlesViewController {
         tableView.delegate = self
 
         self.tableView.separatorStyle = .none
-        
         self.tableView.backgroundView = indicator   // ActivityIndicator que se mostrará durante la carga de la tabla
         title = "My " + currentArticleStatus.rawValue + " Articles"   // Título para mostrar
     }
@@ -385,7 +389,21 @@ extension WriterArticlesViewController {
             }
         }
     }
-
+    
+    
+    // Creación del botón de crear un nuevo articulo como botón derecho del navigation controller
+    func addNewArticleButton() {
+        
+        let btn = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(newArticleAction))
+        navigationItem.rightBarButtonItem = btn
+    }
+    
+    // Acción al pulsar el botón de nuevo artículo
+    func newArticleAction() {
+        
+        let editVC = ArticleEditorViewController(id: nil, client: appClient)
+        navigationController?.pushViewController(editVC, animated: true)
+    }
 
 }
 

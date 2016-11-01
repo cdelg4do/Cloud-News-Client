@@ -20,6 +20,7 @@ class Utils {
     typealias dataClosure = (Data?) -> ()
     typealias stringClosure = (String?) -> ()
     typealias userClosure = (UserInfo?) -> ()
+    typealias boolClosure = (Bool) -> ()
     
     
     // Función que realiza la descarga de un blob de una imagen contenida en un Storage Container remoto, en segundo plano
@@ -79,6 +80,54 @@ class Utils {
         }
         
     }
+    
+    
+    
+    class func uploadBlobImage(_ image: UIImage, blobName: String, toContainer containerName: String, activityIndicator: UIActivityIndicatorView?, completion: @escaping boolClosure) {
+        
+        // Obtener el enlace al blob
+        // (credenciales > cuenta de storage > cliente de storage asociado > contenedor remoto > blob de la imagen)
+        
+        var imageBlob: AZSCloudBlockBlob
+        
+        do {
+            // Configuración del cliente de Storage
+            let storageCredentials = AZSStorageCredentials(accountName: Backend.storageAccountName, accountKey: Backend.storageKeyString)
+            let storageAccount = try AZSCloudStorageAccount(credentials: storageCredentials, useHttps: true)
+            let storageClient = ( storageAccount.getBlobClient() )!
+            
+            // Contenedor de las imagenes
+            let imagesContainer: AZSCloudBlobContainer = storageClient.containerReference(fromName: containerName)
+            
+            // Blob de la imagen
+            imageBlob = imagesContainer.blockBlobReference(fromName: blobName)
+        }
+            
+            
+        // Si hubo errores, invocar a la clausura con false y finalizar
+        catch {
+            print("\nNo pudo construirse el blob de la imagen a enviar\n")
+            
+            completion(false)
+            return
+        }
+        
+        
+        // Si no hubo errores, intentamos subir el blob en segundo plano
+        imageBlob.upload(from: UIImageJPEGRepresentation(image, 1.0)!, completionHandler: { (error) in
+            
+            if error != nil {
+                print("\nError al subir el blob al contenedor remoto:\n\(error)\n")
+                completion(false)
+                return
+            }
+            
+            print("\nBlob subido con éxito!\n")
+            completion(true)
+        })
+    }
+    
+    
     
     
     // Obtención de un objeto UserInfo? con la información del usuario de facebook indicado por userId.
@@ -187,6 +236,19 @@ class Utils {
         return UIScreen.main.nativeBounds.size
     }
     
+    // 
+    class func randomGPSCoordinate(isLat: Bool) -> Double {
+        
+        var abs: CGFloat = CGFloat(Float(arc4random()) / Float(UINT32_MAX))   // entre 0 y 1
+        if isLat    {   abs = abs * 90.0    }
+        else        {   abs = abs * 180.0   }
+        
+        var sign: CGFloat
+        if CGFloat(Float(arc4random()) / Float(UINT32_MAX)) > 0.5   {   sign = 1.0  }
+        else                                                        {   sign = -1.0 }
+        
+        return Double(abs * sign)
+    }
     
     // Función que convierte un objeto NSDate a la correspondiente cadena de texto
     class func dateToString(_ date: NSDate) -> String {

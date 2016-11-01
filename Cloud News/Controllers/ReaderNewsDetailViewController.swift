@@ -124,6 +124,7 @@ class ReaderNewsDetailViewController: UIViewController {
     func syncViewFromModel() {
         
         let titleString, authorString, imageName, content: String?
+        let hasImage: Bool?
         let newsDate: NSDate?
         let viewCount: Int?
         var newsLocation: CLLocation? = nil
@@ -138,15 +139,18 @@ class ReaderNewsDetailViewController: UIViewController {
             newsDate = thisNews["date"] as? NSDate
             viewCount = thisNews["visits"] as? Int
             content = thisNews["text"] as? String
+            hasImage = thisNews["hasImage"] as? Bool
+            imageName = thisNews["imageName"] as? String
             
             if titleString == nil   { throw JsonError.missingJSONField }
             if authorString == nil  { throw JsonError.missingJSONField }
             if newsDate == nil      { throw JsonError.missingJSONField }
             if viewCount == nil     { throw JsonError.missingJSONField }
             if content == nil       { throw JsonError.missingJSONField }
+            if hasImage == nil      { throw JsonError.missingJSONField }
+            if imageName == nil     { throw JsonError.missingJSONField }
             
             // Campos opcionales
-            imageName = thisNews["image"] as? String
             let lat = thisNews["latitude"] as? Double
             let long = thisNews["longitude"] as? Double
             
@@ -165,7 +169,7 @@ class ReaderNewsDetailViewController: UIViewController {
         newsText.text = content
         
         if useAnonymousApi  {   viewsLabel.text = "\(viewCount!+1) views"   }
-        else                {   viewsLabel.text = "\(viewCount!) views"   }
+        else                {   viewsLabel.text = "\(viewCount!) views"     }
         
         if newsLocation != nil  {   locationLabel.text = "Resolving location..."}
         else                    {   locationLabel.text = "(Unknown location)"   }
@@ -185,7 +189,7 @@ class ReaderNewsDetailViewController: UIViewController {
             }
         }
         
-        if imageName != nil {
+        if hasImage! {
             
             Utils.switchActivityIndicator(imageIndicator, show: true)
             
