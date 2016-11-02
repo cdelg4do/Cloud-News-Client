@@ -140,7 +140,7 @@ extension WriterArticlesViewController: UITableViewDataSource {
         cell?.imageView?.image = UIImage(named: "news_placeholder.png")!
         
         // Si el artículo tiene una imagen asociada, mostrarla (si no está cacheada, se descarga)
-        if articleImageName != nil {
+        if articleHasImage! {
             
             if let cachedImage = thumbsCache[articleId!] {
                 cell?.imageView?.image = cachedImage
@@ -187,7 +187,7 @@ extension WriterArticlesViewController: UITableViewDelegate {
         // Si es un borrador, se muestra el controlador de edición (WriterArticleDetailController)
         else {
          
-            let detailVC = ArticleEditorViewController(id: newsId!, client: appClient)
+            let detailVC = ArticleEditorViewController(id: newsId!, client: appClient, session: sessionInfo!)
             navigationController?.pushViewController(detailVC, animated: true)
         }
 
@@ -333,7 +333,7 @@ extension WriterArticlesViewController {
         addNewArticleButton()
         
         // Etiqueta para mostrar si no hay datos en la tabla
-        emptyLabel.text = "No news to show right now, please pull down to refresh."
+        emptyLabel.text = "Nothing to show right now, please pull down to refresh."
         emptyLabel.textColor = UIColor.gray
         emptyLabel.numberOfLines = 0
         emptyLabel.textAlignment = NSTextAlignment.center
@@ -401,7 +401,7 @@ extension WriterArticlesViewController {
     // Acción al pulsar el botón de nuevo artículo
     func newArticleAction() {
         
-        let editVC = ArticleEditorViewController(id: nil, client: appClient)
+        let editVC = ArticleEditorViewController(id: nil, client: appClient, session: sessionInfo!)
         navigationController?.pushViewController(editVC, animated: true)
     }
 

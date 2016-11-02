@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreLocation
 
 class ArticleEditorViewController: UIViewController {
     
@@ -26,8 +27,9 @@ class ArticleEditorViewController: UIViewController {
     // MARK: Propiedades de la clase
     
     var appClient: MSClient             // Cliente asociado a la mobile app
-    var articleId: String?              // Id del artículo que se está editando
-    //var articleData: DatabaseRecord?    // Contenedor para los datos del registro de la BBDD sobre el artículo que se está editando
+    var session: SessionInfo               // Información sobre la sesión del usuario actual
+    var articleId: String?              // Id del borrador que se está editando
+    var draftData: DatabaseRecord?      // Contenedor para los datos del registro de la BBDD sobre el borador que se está editando
     
     var hasImageSelected: Bool = false  // Flag que indica si ya se escogió una imagen para el artículo
     var remoteImageName: String = ""          // Nombre para almacenar la imagen en el contenedor remoto (si tiene imagen)
@@ -35,10 +37,11 @@ class ArticleEditorViewController: UIViewController {
     
     // MARK: Inicialización de la clase
     
-    init(id: String?, client: MSClient) {
+    init(id: String?, client: MSClient, session: SessionInfo) {
         
         self.articleId = id
         self.appClient = client
+        self.session = session
         
         super.init(nibName: nil, bundle: nil)
     }
@@ -50,10 +53,22 @@ class ArticleEditorViewController: UIViewController {
     
     // MARK: Ciclo de vida del controlador
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        // Descargar y mostrar los datos de un borrador ya existente
+        if articleId != nil {
+            
+            // Todo el contenido de la vista permanecerá oculto
+            // hasta que se carge la información de la noticia
+            //Utils.changeSubviewsVisibility(ofView: mainView, hide: true)
+            
+            loadExistingDraft()
+        }
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
     }
     
     
@@ -101,44 +116,38 @@ class ArticleEditorViewController: UIViewController {
         let lon = Utils.randomGPSCoordinate(isLat: false)
         
         
-        asyncUploadToDatabase(title: titleBox.text!, text: contents.text, latitude: lat, longitude: lon) { (returnedId: String?) in
+        // Si el id del artículo es nil, se trata de una nueva entrada
+        if self.articleId == nil {
             
-            if returnedId == nil {
-                print("\nFallo al intentar guardar el borrador'\n")
-                Utils.showInfoDialog(who: self, title: "Save failed", message: "Please try again :'(")
-                return
-            }
-            
-            // Si no hubo errores, guardamos el id devuelto
-            self.articleId = returnedId
-            
-            // Una vez guardado el borrador en la BBDD, se sube la imagen (si tiene)
-            if self.hasImageSelected {
+            saveNewDraft(title: titleBox.text!, text: contents.text, latitude: lat, longitude: lon)
+        }
+        
+        // Si no, se actualiza la entrada ya existente en la BBDD
+        else {
+/*
+            asyncUploadToDatabase(title: titleBox.text!, text: contents.text, latitude: lat, longitude: lon) { (returnedId: String?) in
                 
-                let image = self.imageView.image!
-                let imageName = self.remoteImageName + ".jpg"
-                let thumbnail = Utils.resizeImage(image, toSize: CGSize(width: 40, height: 40))
-                let thumbName = self.remoteImageName + "_thumb.jpg"
+                if returnedId == nil {
+                    print("\nFallo al intentar guardar el borrador'\n")
+                    Utils.showInfoDialog(who: self, title: "Save failed", message: "Please try again :'(")
+                    return
+                }
                 
-                Utils.uploadBlobImage(image, blobName: imageName, toContainer: Backend.newsImageContainerName, activityIndicator:nil) { (success: Bool) in
+                // Si no hubo errores, guardamos el id devuelto
+                self.articleId = returnedId
+                
+                // Una vez guardado el borrador en la BBDD, se sube la imagen (si tiene)
+                if self.hasImageSelected {
                     
-                    if !success {
-                        print("\nFallo al intentar subir la imagen '\(imageName)' al contenedor remoto\n")
-                        Utils.showInfoDialog(who: self, title: "Image upload failed", message: "Please try again :'(")
-                        
-                        self.imageView.image = UIImage(named: "no_image.png")
-                        self.hasImageSelected = false
-                        
-                        return
-                    }
+                    let image = self.imageView.image!
+                    let imageName = self.remoteImageName + ".jpg"
+                    let thumbnail = Utils.resizeImage(image, toSize: CGSize(width: 40, height: 40))
+                    let thumbName = self.remoteImageName + "_thumb.jpg"
                     
-                    print("\nSe ha subido correctamente la imagen '\(imageName)' al contenedor remoto\n")
-                    
-                    // Por último, se intenta subir la miniatura de la imagen
-                    Utils.uploadBlobImage(thumbnail, blobName: thumbName, toContainer: Backend.newsImageContainerName, activityIndicator:nil) { (success: Bool) in
+                    Utils.uploadBlobImage(image, blobName: imageName, toContainer: Backend.newsImageContainerName, activityIndicator:nil) { (success: Bool) in
                         
                         if !success {
-                            print("\nFallo al intentar subir la miniatura '\(thumbName)' al contenedor remoto\n")
+                            print("\nFallo al intentar subir la imagen '\(imageName)' al contenedor remoto\n")
                             Utils.showInfoDialog(who: self, title: "Image upload failed", message: "Please try again :'(")
                             
                             self.imageView.image = UIImage(named: "no_image.png")
@@ -147,15 +156,36 @@ class ArticleEditorViewController: UIViewController {
                             return
                         }
                         
-                        print("\nSe ha subido correctamente la miniatura '\(thumbName)' al contenedor remoto\n")
+                        print("\nSe ha subido correctamente la imagen '\(imageName)' al contenedor remoto\n")
+                        
+                        // Por último, se intenta subir la miniatura de la imagen
+                        Utils.uploadBlobImage(thumbnail, blobName: thumbName, toContainer: Backend.newsImageContainerName, activityIndicator:nil) { (success: Bool) in
+                            
+                            if !success {
+                                print("\nFallo al intentar subir la miniatura '\(thumbName)' al contenedor remoto\n")
+                                Utils.showInfoDialog(who: self, title: "Image upload failed", message: "Please try again :'(")
+                                
+                                self.imageView.image = UIImage(named: "no_image.png")
+                                self.hasImageSelected = false
+                                
+                                return
+                            }
+                            
+                            print("\nSe ha subido correctamente la miniatura '\(thumbName)' al contenedor remoto\n")
+                        }
                     }
+                    
                 }
                 
+                print("\nTodo el proceso de guardado del borrador '\(returnedId!)' se ha completado con éxito!\n")
+                Utils.showInfoDialog(who: self, title: "Done!", message: "Your draft has been saved :)")
             }
-            
-            print("\nTodo el proceso de guardado del borrador '\(returnedId!)' se ha completado con éxito!\n")
-            Utils.showInfoDialog(who: self, title: "Done!", message: "Your draft has been saved :)")
+*/
         }
+        
+        
+        
+        
         
     }
     
@@ -189,6 +219,139 @@ class ArticleEditorViewController: UIViewController {
 }
 
 
+// MARK: Descarga de los datos remotos del borrador
+
+extension ArticleEditorViewController {
+    
+    
+    // Descarga del servidor los datos del borrador noticia y los muestra en la vista
+    func loadExistingDraft() {
+        
+        appClient.invokeAPI(Backend.draftApiName,
+                            body: nil,
+                            httpMethod: "GET",
+                            parameters: ["id": self.articleId!],
+                            headers: nil,
+                            completion: { (result, response, error) in
+                                
+	                                if let _ = error {
+                                    print("\nFallo al invocar la api '\(Backend.draftApiName)':\n\(error)\n")
+                                    Utils.showCloseControllerDialog(who: self, title: "Error", message: "Unable to retrieve remote data, please try again.")
+                                    return
+                                }
+                                
+                                // Si la petición se realizó correctamente, convertir el JSON recibido en una lista de DatabaseRecord
+                                print("\nResultado de la invocación a '\(Backend.draftApiName)':\n\(result!)\n")
+                                let json = result as! [DatabaseRecord]
+                                
+                                // Si la respuesta recibida no contiene elementos,
+                                // mostrar un aviso y volver a la vista anterior
+                                if json.count == 0 {
+                                    
+                                    Utils.showCloseControllerDialog(who: self, title: "Error", message: "This draft is not available anymore, it might have been either published or deleted.")
+                                    return
+                                }
+                                
+                                // La respuesta debe contener 1 elemento,
+                                // lo guardamos y mostramos su información en la vista
+                                self.draftData = json.first
+                                
+                                DispatchQueue.main.async    {
+                                    self.syncViewFromModel()
+                                }
+        })
+    }
+    
+    
+    // Intenta actualizar la vista con la info. del modelo
+    // (solo debe invocarse después de haber llamado a loadNewsDetail() )
+    func syncViewFromModel() {
+        
+        let titleString, imageName, content: String?
+        let hasImage: Bool?
+        let created, updated: NSDate?
+        var location: CLLocation? = nil
+        
+        do {
+            // Extraer los datos del JSON enviado por el servidor
+            guard let draft = draftData else { throw JsonError.nilJSONObject }
+            
+            // Campos que obligatoriamente deben haberse recibido
+            titleString = draft["title"] as? String
+            created = draft["createdAt"] as? NSDate
+            updated = draft["updatedAt"] as? NSDate
+            content = draft["text"] as? String
+            hasImage = draft["hasImage"] as? Bool
+            imageName = draft["imageName"] as? String
+            
+            if titleString == nil   { throw JsonError.missingJSONField }
+            if created == nil       { throw JsonError.missingJSONField }
+            if updated == nil       { throw JsonError.missingJSONField }
+            if content == nil       { throw JsonError.missingJSONField }
+            if hasImage == nil      { throw JsonError.missingJSONField }
+            if imageName == nil     { throw JsonError.missingJSONField }
+            
+            // Campos opcionales
+            let lat = draft["latitude"] as? Double
+            let long = draft["longitude"] as? Double
+            
+            if lat != nil && long != nil {  location = CLLocation(latitude: lat!, longitude: long!) }
+        }
+        catch {
+            print("\nError al extraer la información del JSON recibido\n")
+            Utils.showCloseControllerDialog(who: self, title: "Error", message: "Incorrect server response, please try again.")
+            return
+        }
+        
+        // Actualizar las vistas (de forma síncrona)
+        self.titleBox.text = titleString
+        self.labelCreated.text = "First created: " + Utils.dateToString(created!)
+        self.labelUpdated.text = "Last updated: " + Utils.dateToString(updated!)
+        self.contents.text = content
+        
+//        if newsLocation != nil  {   locationLabel.text = "Resolving location..."}
+//        else                    {   locationLabel.text = "(Unknown location)"   }
+        
+        
+        // Llegados a este punto, ya podemos hacer visible la vista
+//        Utils.changeSubviewsVisibility(ofView: mainView, hide: false)
+        
+        
+        // Actualizar las vístas asíncronas (ubicación e imágen)
+/*        if newsLocation != nil {
+            
+            Utils.asyncReverseGeolocation(location: newsLocation!) { (address: String?) in
+                
+                if address != nil { self.locationLabel.text = address   }
+                else              { self.locationLabel.text = "(\(newsLocation?.coordinate.latitude),\(newsLocation?.coordinate.longitude))>"   }
+            }
+        }
+*/
+        if hasImage! {
+            
+//            Utils.switchActivityIndicator(imageIndicator, show: true)
+            
+            Utils.downloadBlobImage("\(imageName!).jpg", fromContainer: Backend.newsImageContainerName, activityIndicator: nil) { (image: UIImage?) in
+                
+                if image != nil {
+                    
+                    let resizedImage = Utils.resizeImage(image!, toSize: Utils.screenSize())
+                    
+                    DispatchQueue.main.async { self.imageView.image = resizedImage }
+                }
+                
+//                Utils.switchActivityIndicator(self.imageIndicator, show: false)
+            }
+        }
+    }
+    
+    
+}
+
+
+
+
+
 // MARK: Implementación de los protocolos de delegado de UIImagePickerController y de UINavigationController
 
 extension ArticleEditorViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
@@ -216,12 +379,7 @@ extension ArticleEditorViewController: UIImagePickerControllerDelegate, UINaviga
 
 extension ArticleEditorViewController {
     
-/*    func validateData(title: String, text: String) -> Bool {
-        
-        if title.characters.count > 0 && text.characters.count > 0  {   return true }
-        return false
-    }
-*/
+
     // Deshabilitar los botones de la pantalla tras un submit exitoso
     
     func disableAllElements() {
@@ -234,6 +392,86 @@ extension ArticleEditorViewController {
             self.contents.isEditable = false
             self.btnSave.isEnabled = false
             self.btnSubmit.isEnabled = false
+        }
+    }
+    
+    
+    // Función que crea una nueva entrada remota en la BBDD con los datos del borrador indicados
+    
+    func saveNewDraft(title: String, text: String, latitude: Double?, longitude: Double?) {
+        
+        // String que indica si el registro tiene imagen asociada
+        var hasAnImage: Int = 0
+        if self.hasImageSelected { hasAnImage = 1 }
+        
+        // Si es una nueva entrada, generar un nombre aleatorio para el fichero de imagen
+        var imageName = ""
+        if self.articleId == nil {
+            
+            self.remoteImageName = UUID().uuidString
+            imageName = self.remoteImageName
+        }
+        
+        // Coordenadas de ubicación
+        var lat, lon: Double?
+        
+        if latitude == nil || longitude == nil {
+            lat = nil
+            lon = nil
+        }
+        else {
+            lat = latitude!
+            lon = longitude!
+        }
+        
+        // Objeto a insertar en la BBDD
+        let newItem: [AnyHashable : Any] = [ "title": title,
+                                             "status": ArticleStatus.draft.rawValue,
+                                             "writer": session.userId,
+                                             "latitude": lat!,
+                                             "longitude": lon!,
+                                             "visits": 0,
+                                             "text": text,
+                                             "hasImage": hasAnImage,
+                                             "imageName": imageName  ]
+        
+        // Inserción de un registro en la tabla,
+        // si no hay error devuelve en result el objeto insertado con todos sus campos
+        appClient.table(withName: "News").insert(newItem) { (result, error) in
+            
+            if let _ = error {
+                print("\nFallo al intentar guardar el nuevo borrador:\n\(error!)\n")
+                Utils.showInfoDialog(who: self, title: "Save failed", message: "Please try again :'(")
+                return
+            }
+            
+            // Si no hubo errores, guardar el id del nuevo registro creado
+            print("\nNuevo borrador insertado en la tabla:\n\(result!)\n")
+            
+            let returnedItem = (result as [AnyHashable : Any]?)!
+            self.articleId = (returnedItem["id"] as! String)
+            
+            
+            // Si tenía una imagen asociada, guardarla también
+            if self.hasImageSelected {
+                
+                self.uploadImage(self.imageView.image!, withName: self.remoteImageName) { (success: Bool) in
+                    
+                    if !success {
+                        print("\nFallo al intentar guardar la imagen del nuevo borrador'\n")
+                        Utils.showInfoDialog(who: self, title: "Something went wrong", message: "Your new draft has been saved, but the picture could not be stored properly. Please try again :'(")
+                        return
+                    }
+                    
+                    	print("\nSe guardaron correctamente el borrador '\(self.articleId!)' y su imagen asociada!\n")
+                    Utils.showInfoDialog(who: self, title: "Done!", message: "Your draft has been saved :)")
+                }
+            }
+            else {
+                print("\nSe guardó correctamente el borrador '\(self.articleId!)'! (sin imagen asociada)\n")
+                Utils.showInfoDialog(who: self, title: "Done!", message: "Your draft has been saved :)")
+            }
+            
         }
     }
     
@@ -268,12 +506,12 @@ extension ArticleEditorViewController {
             lon = ""
         }
         else {
-            lat = String(describing: latitude)
-            lon = String(describing: longitude)
+            lat = String(describing: latitude!)
+            lon = String(describing: longitude!)
         }
         
         // Parámetros de la petición
-        let params = ["id": id,
+        let bodyParams = ["id": id,
                       "title": title,
                       "hasImage": hasAnImage,
                       "imageName": imageName,
@@ -283,9 +521,9 @@ extension ArticleEditorViewController {
         
         // Invocar a la API remota que sube los datos a la BBDD
         appClient.invokeAPI(Backend.draftApiName,
-                            body: nil,
+                            body: bodyParams,
                             httpMethod: "POST",
-                            parameters: params,
+                            parameters: nil,
                             headers: nil,
                             completion: { (result, response, error) in
                                 
@@ -318,11 +556,11 @@ extension ArticleEditorViewController {
         }
         
         // Parámetros de la petición
-        let body = ["id": self.articleId!]
+        let bodyParams = ["id": self.articleId!]
         
         // Invocar a la API remota que sube los datos a la BBDD
         appClient.invokeAPI(Backend.submittedApiName,
-                            body: body,
+                            body: bodyParams,
                             httpMethod: "POST",
                             parameters: nil,
                             headers: nil,
@@ -342,6 +580,43 @@ extension ArticleEditorViewController {
                                 completion(returnedId)
         })
         
+    }
+    
+    
+    
+    // Guarda una imagen jpg (y su miniatura correspondiente en el contendor remoto de Azure Storage correspondiente)
+    
+    func uploadImage(_ image: UIImage, withName imageName: String, completion: @escaping (Bool) -> () ) {
+        
+        // Primero se intenta almacenar la imagen "grande"
+        let imageFileName = imageName + ".jpg"
+        
+        Utils.uploadBlobImage(image, blobName: imageFileName, toContainer: Backend.newsImageContainerName, activityIndicator: nil) { (success1: Bool) in
+            
+            if !success1 {
+                print("\nFallo al intentar subir la imagen '\(imageFileName)' al contenedor remoto\n")
+                completion(false)
+                return
+            }
+            
+            print("\nSe ha subido correctamente la imagen '\(imageFileName)' al contenedor remoto\n")
+            
+            // Después, se genera la miniatura y se inenta guardar
+            let thumbnail = Utils.resizeImage(image, toSize: CGSize(width: 40, height: 40))
+            let thumbFileName = imageName + "_thumb.jpg"
+            
+            Utils.uploadBlobImage(thumbnail, blobName: thumbFileName, toContainer: Backend.newsImageContainerName, activityIndicator:nil) { (success2: Bool) in
+                
+                if !success2 {
+                    print("\nFallo al intentar subir la miniatura '\(thumbFileName)' al contenedor remoto\n")
+                    completion(false)
+                    return
+                }
+                
+                print("\nSe ha subido correctamente la miniatura '\(thumbFileName)' al contenedor remoto\n")
+                completion(true)
+            }
+        }
     }
     
 }

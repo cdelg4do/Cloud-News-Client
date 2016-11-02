@@ -69,7 +69,7 @@ class Utils {
             
             if let _ = error {
                 
-                print("\nError al descargar el blob remoto\n\(error)\n")
+                print("\nError al descargar el blob remoto\n\(error!)\n")
                 
                 completion(nil)
                 return
@@ -270,11 +270,16 @@ class Utils {
     
     
     // Función que muestra en un ViewController un diálogo (con un título, un mensaje y un botón de aceptar)
+    // Se ejecuta siempre en la cola principal
     class func showInfoDialog( who parent: UIViewController, title dialogTitle: String, message dialogMessage: String) {
         
-        let alert = UIAlertController(title: dialogTitle, message: dialogMessage, preferredStyle: .alert)
-        alert.addAction( UIAlertAction(title: "OK", style: .default, handler: nil) )
-        parent.present(alert, animated: true, completion: nil)
+        DispatchQueue.main.async {
+            
+            let alert = UIAlertController(title: dialogTitle, message: dialogMessage, preferredStyle: .alert)
+            alert.addAction( UIAlertAction(title: "OK", style: .default, handler: nil) )
+            parent.present(alert, animated: true, completion: nil)
+        }
+        
     }
     
     
