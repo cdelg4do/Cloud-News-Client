@@ -10,6 +10,11 @@ import UIKit
 
 class InitialViewController: UIViewController {
     
+    // Cliente de Azure Mobile
+    // (se inicializa aquí, y se comparte en los demás controladores de la aplicación)
+    var appClient: MSClient = MSClient(applicationURL: URL(string: Backend.mobileAppUrlString)!)
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -20,18 +25,18 @@ class InitialViewController: UIViewController {
     // MARK: Acciones al pulsar los botones de la vista
     
     // Botón de leer noticias
-    @IBAction func readerMode(_ sender: AnyObject) {
+    @IBAction func enterReaderMode(_ sender: AnyObject) {
         
         // Crear el controlador para mostrar la lista de noticias publicadas, y mostrarlo
-        let readerVC = ReaderTableViewController(nibName: nil, bundle: nil)
+        let readerVC = ReaderTableViewController(client: appClient)
         navigationController?.pushViewController(readerVC, animated: true)
     }
     
-    // Botón de redactar noticias
-    @IBAction func authorMode(_ sender: AnyObject) {
+    // Botón de escribir noticias
+    @IBAction func enterWriterMode(_ sender: AnyObject) {
         
         // Crear el controlador para mostrar la lista de noticias del autor, y mostrarlo
-        let writerVC = WriterArticlesViewController(nibName: nil, bundle: nil)
+        let writerVC = WriterArticlesViewController(client: appClient)
         navigationController?.pushViewController(writerVC, animated: true)
     }
     

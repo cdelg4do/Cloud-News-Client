@@ -80,7 +80,7 @@
                                     <color key="textColor" white="0.25" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                                     <nil key="highlightedColor"/>
                                 </label>
-                                <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" editable="NO" text="news text" textAlignment="justified" translatesAutoresizingMaskIntoConstraints="NO" id="Mnt-cZ-3Yo">
+                                <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" bounces="NO" scrollEnabled="NO" editable="NO" text="news text" textAlignment="justified" translatesAutoresizingMaskIntoConstraints="NO" id="Mnt-cZ-3Yo">
                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                     <inset key="scrollIndicatorInsets" minX="0.0" minY="0.0" maxX="-1" maxY="0.0"/>
                                     <fontDescription key="fontDescription" type="system" pointSize="15"/>
@@ -130,7 +130,7 @@
                 <constraint firstAttribute="trailing" secondItem="lAV-kR-SJj" secondAttribute="trailing" constant="8" id="rFa-Cr-4lN"/>
                 <constraint firstItem="lAV-kR-SJj" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" constant="8" id="va6-AQ-bb1"/>
             </constraints>
-            <point key="canvasLocation" x="-3070" y="-612"/>
+            <point key="canvasLocation" x="-3205" y="-596"/>
         </view>
     </objects>
     <resources>

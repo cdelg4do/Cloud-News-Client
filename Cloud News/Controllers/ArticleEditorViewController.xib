@@ -31,35 +31,30 @@
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="WGg-eu-urw">
                             <subviews>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Article title:" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="iED-W6-8Ue">
-                                    <fontDescription key="fontDescription" type="system" pointSize="22"/>
-                                    <nil key="textColor"/>
+                                    <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                    <color key="textColor" white="0.098731124161073824" alpha="1" colorSpace="calibratedWhite"/>
                                     <nil key="highlightedColor"/>
                                 </label>
                                 <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Enter a title for the article" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="sRc-I8-Z7D">
                                     <nil key="textColor"/>
-                                    <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                    <fontDescription key="fontDescription" type="system" pointSize="16"/>
                                     <textInputTraits key="textInputTraits"/>
                                 </textField>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="First created:" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="adL-JA-J4P">
-                                    <fontDescription key="fontDescription" type="system" pointSize="22"/>
+                                    <fontDescription key="fontDescription" type="system" pointSize="16"/>
                                     <nil key="textColor"/>
                                     <nil key="highlightedColor"/>
                                 </label>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Last updated:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Mjk-0D-k5b">
-                                    <fontDescription key="fontDescription" type="system" pointSize="22"/>
+                                    <fontDescription key="fontDescription" type="system" pointSize="16"/>
                                     <nil key="textColor"/>
                                     <nil key="highlightedColor"/>
                                 </label>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Article picture:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LGp-aS-QDR">
-                                    <fontDescription key="fontDescription" type="system" pointSize="22"/>
+                                    <fontDescription key="fontDescription" type="system" pointSize="16"/>
                                     <nil key="textColor"/>
                                     <nil key="highlightedColor"/>
                                 </label>
-                                <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="no_image.png" translatesAutoresizingMaskIntoConstraints="NO" id="EEk-v6-Sm8">
-                                    <constraints>
-                                        <constraint firstAttribute="width" secondItem="EEk-v6-Sm8" secondAttribute="height" multiplier="9:5" id="klh-Ky-TCb"/>
-                                    </constraints>
-                                </imageView>
                                 <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="GVU-FF-kMG">
                                     <subviews>
                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="HJa-Ri-MbC">
@@ -89,23 +84,28 @@
                                     </constraints>
                                 </stackView>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Text:" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wOS-Y9-v50">
-                                    <fontDescription key="fontDescription" type="system" pointSize="22"/>
+                                    <fontDescription key="fontDescription" type="system" pointSize="18"/>
                                     <nil key="textColor"/>
                                     <nil key="highlightedColor"/>
                                 </label>
-                                <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" delaysContentTouches="NO" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="Dlk-hq-Ahg">
+                                <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" bounces="NO" delaysContentTouches="NO" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="Dlk-hq-Ahg">
                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                     <constraints>
-                                        <constraint firstAttribute="height" constant="250" id="daf-s3-AMg"/>
+                                        <constraint firstAttribute="height" constant="375" id="daf-s3-AMg"/>
                                     </constraints>
-                                    <mutableString key="text">Lorem fistrum ahorarr apetecan a peich la caidita hasta luego Lucas mamaar ahorarr jarl. A wan mamaar a peich a gramenawer pecador quietooor no puedor. Diodeno la caidita ese pedazo de quietooor a peich hasta luego Lucas diodeno llevame al sircoo pecador diodenoo. Al ataquerl qué dise usteer me cago en tus muelas a wan te voy a borrar el cerito sexuarl amatomaa tiene musho peligro qué dise usteer sexuarl. Jarl pupita va usté muy cargadoo no te digo trigo por no llamarte Rodrigor va usté muy cargadoo pecador diodeno al ataquerl diodenoo. No puedor a peich por la gloria de mi madre a peich quietooor. Está la cosa muy malar va usté muy cargadoo ahorarr de la pradera va usté muy cargadoo ese hombree. Te va a hasé pupitaa está la cosa muy malar llevame al sircoo llevame al sircoo benemeritaar torpedo. Diodeno te voy a borrar el cerito diodenoo quietooor.
+                                    <string key="text">Lorem fistrum ahorarr apetecan a peich la caidita hasta luego Lucas mamaar ahorarr jarl. A wan mamaar a peich a gramenawer pecador quietooor no puedor. Diodeno la caidita ese pedazo de quietooor a peich hasta luego Lucas diodeno llevame al sircoo pecador diodenoo. Al ataquerl qué dise usteer me cago en tus muelas a wan te voy a borrar el cerito sexuarl amatomaa tiene musho peligro qué dise usteer sexuarl. Jarl pupita va usté muy cargadoo no te digo trigo por no llamarte Rodrigor va usté muy cargadoo pecador diodeno al ataquerl diodenoo. No puedor a peich por la gloria de mi madre a peich quietooor. Está la cosa muy malar va usté muy cargadoo ahorarr de la pradera va usté muy cargadoo ese hombree. Te va a hasé pupitaa está la cosa muy malar llevame al sircoo llevame al sircoo benemeritaar torpedo. Diodeno te voy a borrar el cerito diodenoo quietooor.
 
 Te voy a borrar el cerito de la pradera caballo blanco caballo negroorl ese que llega está la cosa muy malar benemeritaar pecador diodenoo al ataquerl hasta luego Lucas sexuarl. Al ataquerl benemeritaar ahorarr me cago en tus muelas. De la pradera pecador benemeritaar te va a hasé pupitaa torpedo. Ese hombree benemeritaar apetecan la caidita apetecan te va a hasé pupitaa. Me cago en tus muelas va usté muy cargadoo a wan ahorarr ese pedazo de torpedo mamaar quietooor. Va usté muy cargadoo a peich me cago en tus muelas no te digo trigo por no llamarte Rodrigor se calle ustée ese hombree.
 
-Se calle ustée diodeno se calle ustée qué dise usteer mamaar papaar papaar diodenoo la caidita sexuarl ese hombree está la cosa muy malar. La caidita a wan no puedor diodeno llevame al sircoo pecador. Diodeno sexuarl va usté muy cargadoo hasta luego Lucas torpedo va usté muy cargadoo qué dise usteer quietooor al ataquerl fistro. Pecador amatomaa a wan al ataquerl a wan. Quietooor no te digo trigo por no llamarte Rodrigor apetecan diodenoo.</mutableString>
+Se calle ustée diodeno se calle ustée qué dise usteer mamaar papaar papaar diodenoo la caidita sexuarl ese hombree está la cosa muy malar. La caidita a wan no puedor diodeno llevame al sircoo pecador. Diodeno sexuarl va usté muy cargadoo hasta luego Lucas torpedo va usté muy cargadoo qué dise usteer quietooor al ataquerl fistro. Pecador amatomaa a wan al ataquerl a wan. Quietooor no te digo trigo por no llamarte Rodrigor apetecan diodenoo.</string>
                                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                     <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                                 </textView>
+                                <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="no_image.png" translatesAutoresizingMaskIntoConstraints="NO" id="EEk-v6-Sm8">
+                                    <constraints>
+                                        <constraint firstAttribute="width" secondItem="EEk-v6-Sm8" secondAttribute="height" multiplier="9:5" id="klh-Ky-TCb"/>
+                                    </constraints>
+                                </imageView>
                             </subviews>
                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             <constraints>
@@ -183,7 +183,7 @@ Se calle ustée diodeno se calle ustée qué dise usteer mamaar papaar papaar di
                 <constraint firstItem="U43-DX-zCn" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" id="t58-Ej-WEo"/>
                 <constraint firstItem="WGg-eu-urw" firstAttribute="height" secondItem="i5M-Pr-FkT" secondAttribute="height" priority="250" id="wo1-FY-OXu"/>
             </constraints>
-            <point key="canvasLocation" x="-452" y="5"/>
+            <point key="canvasLocation" x="-562" y="-297"/>
         </view>
     </objects>
     <resources>

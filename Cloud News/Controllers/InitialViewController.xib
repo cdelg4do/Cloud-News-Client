@@ -16,53 +16,60 @@
             <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="GCb-gb-ed8">
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="lp8-Fy-xwC">
                     <subviews>
-                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="BcK-y2-P75">
-                            <constraints>
-                                <constraint firstAttribute="width" constant="170" id="90G-Eq-lW9"/>
-                                <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="170" id="USl-iQ-d92"/>
-                                <constraint firstAttribute="height" constant="30" id="hYm-et-xRj"/>
-                            </constraints>
-                            <fontDescription key="fontDescription" name=".SFNSDisplay-Regular" family=".SF NS Display" pointSize="30"/>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9tR-fu-XvB">
+                            <fontDescription key="fontDescription" name="Verdana-Bold" family="Verdana" pointSize="28"/>
                             <state key="normal" title="Read News"/>
                             <connections>
-                                <action selector="readerMode:" destination="-1" eventType="touchUpInside" id="LfF-3j-aGD"/>
+                                <action selector="enterReaderMode:" destination="-1" eventType="touchUpInside" id="iAs-sn-ZFY"/>
                             </connections>
                         </button>
-                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" hasAttributedTitle="YES" translatesAutoresizingMaskIntoConstraints="NO" id="93R-Z0-ycG">
-                            <state key="normal">
-                                <attributedString key="attributedTitle">
-                                    <fragment content="I want to write news!">
-                                        <attributes>
-                                            <color key="NSColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                                            <font key="NSFont" size="15" name="Arial-BoldItalicMT"/>
-                                        </attributes>
-                                    </fragment>
-                                </attributedString>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="with a Facebook account" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bvx-Mv-ggR">
+                            <fontDescription key="fontDescription" name="Trebuchet-BoldItalic" family="Trebuchet MS" pointSize="14"/>
+                            <color key="textColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9h9-SD-Wh2">
+                            <fontDescription key="fontDescription" name="Verdana-Bold" family="Verdana" pointSize="18"/>
+                            <state key="normal" title="I want to Write News!">
+                                <color key="titleColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                             </state>
                             <connections>
-                                <action selector="authorMode:" destination="-1" eventType="touchUpInside" id="KAS-WR-qiF"/>
+                                <action selector="enterWriterMode:" destination="-1" eventType="touchUpInside" id="Zh1-wc-yXH"/>
                             </connections>
                         </button>
                     </subviews>
-                    <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     <constraints>
-                        <constraint firstItem="BcK-y2-P75" firstAttribute="centerX" secondItem="GCb-gb-ed8" secondAttribute="centerX" id="4xx-mL-cPu"/>
-                        <constraint firstItem="93R-Z0-ycG" firstAttribute="centerX" secondItem="GCb-gb-ed8" secondAttribute="centerX" id="SNT-tO-09r"/>
-                        <constraint firstAttribute="bottom" secondItem="93R-Z0-ycG" secondAttribute="bottom" constant="8" id="WhA-S5-EuW"/>
-                        <constraint firstItem="BcK-y2-P75" firstAttribute="top" secondItem="GCb-gb-ed8" secondAttribute="top" constant="8" id="ewI-ip-d8R"/>
-                        <constraint firstAttribute="height" constant="200" id="zkh-de-Rgp"/>
+                        <constraint firstItem="9h9-SD-Wh2" firstAttribute="leading" secondItem="lp8-Fy-xwC" secondAttribute="leading" constant="8" id="2Fr-Ow-frL"/>
+                        <constraint firstItem="bvx-Mv-ggR" firstAttribute="top" secondItem="9h9-SD-Wh2" secondAttribute="bottom" id="OXv-S4-vEK"/>
+                        <constraint firstAttribute="height" constant="175" id="Uip-8L-7Bd"/>
+                        <constraint firstAttribute="width" constant="250" id="ZhB-BZ-lMR"/>
+                        <constraint firstItem="bvx-Mv-ggR" firstAttribute="leading" secondItem="lp8-Fy-xwC" secondAttribute="leading" constant="8" id="cjr-2h-kac"/>
+                        <constraint firstAttribute="trailing" secondItem="9h9-SD-Wh2" secondAttribute="trailing" constant="8" id="dLc-dk-AHH"/>
+                        <constraint firstItem="9tR-fu-XvB" firstAttribute="leading" secondItem="lp8-Fy-xwC" secondAttribute="leading" constant="8" id="i3d-lY-KTr"/>
+                        <constraint firstAttribute="bottom" secondItem="bvx-Mv-ggR" secondAttribute="bottom" constant="8" id="l6g-GJ-bZn"/>
+                        <constraint firstItem="9tR-fu-XvB" firstAttribute="top" secondItem="lp8-Fy-xwC" secondAttribute="top" constant="8" id="m75-6K-e1k"/>
+                        <constraint firstAttribute="trailing" secondItem="bvx-Mv-ggR" secondAttribute="trailing" constant="8" id="pAf-xf-Kgn"/>
+                        <constraint firstAttribute="trailing" secondItem="9tR-fu-XvB" secondAttribute="trailing" constant="8" id="qtA-yp-6Fs"/>
                     </constraints>
                 </view>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Cloud News" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ufz-0e-6kV">
+                    <fontDescription key="fontDescription" name="GurmukhiMN" family="Gurmukhi MN" pointSize="50"/>
+                    <nil key="textColor"/>
+                    <nil key="highlightedColor"/>
+                </label>
             </subviews>
-            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+            <color key="backgroundColor" white="0.7013160654362417" alpha="1" colorSpace="calibratedWhite"/>
             <constraints>
-                <constraint firstAttribute="trailing" secondItem="GCb-gb-ed8" secondAttribute="trailing" constant="40" id="SS9-tD-i7q"/>
-                <constraint firstItem="GCb-gb-ed8" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" constant="40" id="b5I-tf-gaR"/>
-                <constraint firstItem="GCb-gb-ed8" firstAttribute="centerY" secondItem="i5M-Pr-FkT" secondAttribute="centerY" id="qKA-hc-jgU"/>
+                <constraint firstItem="lp8-Fy-xwC" firstAttribute="centerY" secondItem="i5M-Pr-FkT" secondAttribute="centerY" constant="40" id="3Je-4S-grE"/>
+                <constraint firstItem="lp8-Fy-xwC" firstAttribute="centerX" secondItem="i5M-Pr-FkT" secondAttribute="centerX" id="MdF-PT-TQJ"/>
+                <constraint firstItem="lp8-Fy-xwC" firstAttribute="top" secondItem="ufz-0e-6kV" secondAttribute="bottom" constant="16" id="Zq9-vV-Msh"/>
+                <constraint firstItem="ufz-0e-6kV" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" constant="8" id="cyA-5z-hAw"/>
+                <constraint firstAttribute="trailing" secondItem="ufz-0e-6kV" secondAttribute="trailing" constant="8" id="pJO-FR-L6u"/>
             </constraints>
-            <point key="canvasLocation" x="-429" y="-42"/>
+            <point key="canvasLocation" x="-932" y="-193"/>
         </view>
     </objects>
 </document>

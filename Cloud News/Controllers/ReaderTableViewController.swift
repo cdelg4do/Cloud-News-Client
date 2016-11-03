@@ -14,13 +14,27 @@ class ReaderTableViewController: UITableViewController {
     
     // MARK: Propiedades de la clase
     
-    var appClient: MSClient = MSClient(applicationURL: URL(string: Backend.mobileAppUrlString)!)    // Cliente de Azure Mobile
+    var appClient: MSClient                 // Cliente de Azure Mobile
     var newsList: [DatabaseRecord]? = []    // Lista de noticias a mostrar en la tabla
     var thumbsCache = [String:UIImage]()    // Caché de miniaturas
-    var writersCache = [String:String]()   // Caché de nombres de autores
+    var writersCache = [String:String]()    // Caché de nombres de autores
     
     let indicator = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.gray)  // Indicador de actividad de la tabla
     let emptyLabel = UILabel()  // Etiqueta para mostrar, en caso de que no haya datos en la tabla
+    
+    
+    // MARK: Inicialización de la clase
+    
+    init(client: MSClient) {
+        
+        self.appClient = client
+        
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     
     // MARK: Ciclo de vida del controlador
