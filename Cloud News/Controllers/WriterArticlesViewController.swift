@@ -140,8 +140,6 @@ extension WriterArticlesViewController: UITableViewDataSource {
         
             case .draft:        detailLabelText = "Last updated on \(dateString)"
                                 break
-            
-            default:            detailLabelText = ""
         }
         
         
@@ -172,7 +170,7 @@ extension WriterArticlesViewController: UITableViewDataSource {
                 Utils.downloadBlobImage(thumbnailName, fromContainer: Backend.newsImageContainerName, activityIndicator: nil) { (image: UIImage?) in
                     
                     // Si se descargó la imagen remota, cachearla y actualizar la vista (en la cola principal)
-                    if articleHasImage! {
+                    if image != nil {
                         
                         self.thumbsCache[articleId!] = image!
                         DispatchQueue.main.async {

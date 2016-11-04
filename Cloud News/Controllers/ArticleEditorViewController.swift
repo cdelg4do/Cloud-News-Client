@@ -34,8 +34,15 @@ class ArticleEditorViewController: UIViewController {
     var session: SessionInfo            // Información sobre la sesión del usuario actual
     var articleId: String?              // Id del borrador que se está editando
     var draftData: [AnyHashable : Any]? // Contenedor para los datos del registro de la BBDD sobre el borador
-    var hasImageSelected: Bool = false  // Flag que indica si ya se escogió una imagen para el artículo
-    var remoteImageName: String = ""    // Nombre para almacenar la imagen en el contenedor remoto (si tiene imagen)
+    
+    // Flag que indica si ya se escogió una imagen para el artículo
+    // (si es false, el botón de seleccionar imagen se desactiva. Y si es true, se activa)
+    var hasImageSelected: Bool {
+        
+        didSet{
+            btnClear.isEnabled = hasImageSelected
+        }
+    }
     
     
     // MARK: Inicialización de la clase
@@ -47,6 +54,7 @@ class ArticleEditorViewController: UIViewController {
         self.session = session
         
         self.draftData = nil
+        self.hasImageSelected = false
         
         super.init(nibName: nil, bundle: nil)
     }
@@ -64,6 +72,9 @@ class ArticleEditorViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        
+        btnClear.isEnabled = false
         
         // Si se trata de un borrador ya existente, descargar y mostrar sus datos
         if articleId != nil {
@@ -213,7 +224,7 @@ extension ArticleEditorViewController {
     
     
     // Función que intenta actualizar la vista con la info. del modelo local
-    // (solo debe invocarse después de haber llamado a loadNewsDetail() )
+    // (solo debe invocarse después de haber descargado los datos remotos en loadNewsDetail() )
     func syncViewFromModel() {
         
         let titleString, imageName, content: String?
@@ -251,6 +262,10 @@ extension ArticleEditorViewController {
             Utils.showCloseControllerDialog(who: self, title: "Error", message: "Incorrect server response, please try again.")
             return
         }
+        
+        // Si el borrador descargado tiene una imagen, activar el flag que indica que hay una imagen escogida por el usuario
+        // (ya que de lo contrario, el botón de eliminar imagen no funcionaría)
+        self.hasImageSelected = hasImage!
         
         // Actualizar las vistas (de forma síncrona)
         self.titleBox.text = titleString
@@ -345,7 +360,7 @@ extension ArticleEditorViewController {
             // Si se trata de crear un nuevo registro,
             // hay que indicarle además los campos status, writer, visits e imageName
         else {
-            self.remoteImageName = UUID().uuidString    // nombre de fichero aleatorio y único
+            let imageName = UUID().uuidString    // nombre de fichero aleatorio y único
             
             result = [ "title": title,
                        "status": ArticleStatus.draft.rawValue,
@@ -355,7 +370,7 @@ extension ArticleEditorViewController {
                        "visits": 0,
                        "text": text,
                        "hasImage": hasAnImage,
-                       "imageName": self.remoteImageName ]
+                       "imageName": imageName ]
         }
         
         return result
@@ -394,7 +409,7 @@ extension ArticleEditorViewController {
             // Si tenía una imagen asociada, guardarla también
             if self.hasImageSelected {
                 
-                self.uploadImage(self.imageView.image!, withName: self.remoteImageName) { (success: Bool) in
+                self.uploadImage(self.imageView.image!, withName: (self.draftData?["imageName"] as! String) )  { (success: Bool) in
                     
                     if !success {
                         print("\nFallo al intentar guardar la imagen del nuevo borrador'\n")
@@ -453,7 +468,7 @@ extension ArticleEditorViewController {
             // Si tiene una imagen asociada, guardarla también
             if self.hasImageSelected {
                 
-                self.uploadImage(self.imageView.image!, withName: self.remoteImageName) { (success: Bool) in
+                self.uploadImage(self.imageView.image!, withName: (self.draftData?["imageName"] as! String) )  { (success: Bool) in
                     
                     if !success {
                         print("\nFallo al intentar guardar la imagen del borrador'\n")
@@ -475,7 +490,7 @@ extension ArticleEditorViewController {
                     
                     // Tanto si se pudo eliminar la imagen como si no, al usuario se le muestra un mensaje de éxito (no le afecta)
                     if success  {   print("\nSe guardó correctamente el borrador '\(self.articleId!)'! (sin imagen asociada)\n")    }
-                    else        {   print("\nFallo al intentar eliminar la imagen del borrador'\n")                                 }
+                    else        {   print("\nFallo al intentar eliminar la imagen del borrador\n")                                 }
                     
                     Utils.showInfoDialog(who: self, title: "Done!", message: "Your draft has been saved :)")
                 }
