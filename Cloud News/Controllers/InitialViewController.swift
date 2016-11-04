@@ -5,8 +5,12 @@
 //  Created by Carlos Delgado on 26/10/16.
 //  Copyright © 2016 cdelg4do. All rights reserved.
 //
+//  Este controlador se encarga de mostrar el listado de noticias publicadas para los usuarios anónimos.
+//  Desde este controlador se realizan los inicios y cierres de sesión en Facebook.
+
 
 import UIKit
+
 
 class InitialViewController: UIViewController {
     

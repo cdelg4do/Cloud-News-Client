@@ -5,6 +5,9 @@
 //  Created by Carlos Delgado on 30/10/16.
 //  Copyright © 2016 cdelg4do. All rights reserved.
 //
+//  Esta clase almacena los datos publicados en el perfil de un usuario de facebook.
+//  Se utiliza para mostrar alguna información del usuario en pantalla (su nombre, etc)
+
 
 import Foundation
 

@@ -5,6 +5,9 @@
 //  Created by Carlos Delgado on 27/10/16.
 //  Copyright © 2016 cdelg4do. All rights reserved.
 //
+//  Esta clase contiene proporciona funciones auxiliares para operaciones comunes.
+//  Todos los métodos de la clase son estáticos.
+
 
 import Foundation
 import UIKit
@@ -103,11 +106,9 @@ class Utils {
             imageBlob = imagesContainer.blockBlobReference(fromName: blobName)
         }
             
-            
         // Si hubo errores, invocar a la clausura con false y finalizar
         catch {
             print("\nNo pudo construirse el blob de la imagen a enviar\n")
-            
             completion(false)
             return
         }
@@ -123,6 +124,48 @@ class Utils {
             }
             
             print("\nBlob subido con éxito!\n")
+            completion(true)
+        })
+    }
+    
+    
+    class func removeBlob(withName blobName: String, fromContainer containerName: String, completion: @escaping boolClosure) {
+        
+        // Obtener el enlace al blob
+        // (credenciales > cuenta de storage > cliente de storage asociado > contenedor remoto > blob de la imagen)
+        
+        var myBlob: AZSCloudBlockBlob
+        
+        do {
+            // Configuración del cliente de Storage
+            let storageCredentials = AZSStorageCredentials(accountName: Backend.storageAccountName, accountKey: Backend.storageKeyString)
+            let storageAccount = try AZSCloudStorageAccount(credentials: storageCredentials, useHttps: true)
+            let storageClient = ( storageAccount.getBlobClient() )!
+            
+            // Contenedor
+            let imagesContainer: AZSCloudBlobContainer = storageClient.containerReference(fromName: containerName)
+            
+            // Blob del fichero
+            myBlob = imagesContainer.blockBlobReference(fromName: blobName)
+        }
+        
+        // Si hubo errores, invocar a la clausura con false y finalizar
+        catch {
+            print("\nNo pudo construirse el blob del fichero a eliminar\n")
+            completion(false)
+            return
+        }
+        
+        // Si no hubo errores, intentamos eliminar el blob
+        myBlob.delete(completionHandler: { (error) in
+            
+            if error != nil {
+                print("\nError al eliminar el blob del contenedor remoto:\n\(error)\n")
+                completion(false)
+                return
+            }
+            
+            print("\nBlob eliminado con éxito!\n")
             completion(true)
         })
     }

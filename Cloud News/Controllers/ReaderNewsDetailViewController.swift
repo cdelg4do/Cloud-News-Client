@@ -5,9 +5,18 @@
 //  Created by Carlos Delgado on 27/10/16.
 //  Copyright © 2016 cdelg4do. All rights reserved.
 //
+//  Este controlador muestra la vista de solo lectura de un artículo determinado.
+//  La variable anonymous del init() determina qué API se utilizará para descargar los datos del servidor:
+//  
+//  - Si es true ---> Api read_news (anónima, solo sirve para mostrar artículos en estado published)
+//  - Si es false --> Api read_articles (requiere que el usuario esté autenticado, sirve para published y submitted)
+//  
+//  Cuando se descarga un artículo publicado: read_news incrementa el contador de visitas, read_articles no.
+
 
 import UIKit
 import CoreLocation
+
 
 class ReaderNewsDetailViewController: UIViewController {
     

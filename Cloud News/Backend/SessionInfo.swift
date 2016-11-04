@@ -5,6 +5,8 @@
 //  Created by Carlos Delgado on 30/10/16.
 //  Copyright © 2016 cdelg4do. All rights reserved.
 //
+//  Esta clase representa un contenedor con los datos de una sesión activa
+//  para un usuario autenticado con el provedoor externo (Facebook)
 
 import Foundation
 
@@ -23,6 +25,7 @@ class SessionInfo {
     let birthday: Date
     let link: URL
     
+    // Inicializador designado de la clase
     init(id: String, token: String, firstName: String, fullName: String, email: String, birthday: Date, link: URL) {
         
         self.userId = id
@@ -34,6 +37,8 @@ class SessionInfo {
         self.link = link
     }
     
+    // Devuelve un nuevo objeto de la clase con los datos del elemento json indicado,
+    // si dicho elemento es correcto. Si no lo es, devuelve nil.
     class func validate(_ json: JsonElement) -> SessionInfo? {
         
         let usr, tok, name, full, mail, bdayString, urlString: String?

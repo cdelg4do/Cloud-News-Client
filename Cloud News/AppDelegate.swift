@@ -16,10 +16,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         
-        // Crear el controlador inicial
+        // Crear el controlador inicial y un navigation controller con él
         let initialVC = InitialViewController(nibName: nil, bundle: nil)
-        
-        // Crear un navigation controller con él
         let navVC = UINavigationController(rootViewController: initialVC)
         
         // Crear la window, asignarle el navigation controller como root y mostrarla
