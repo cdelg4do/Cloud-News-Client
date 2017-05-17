@@ -5,8 +5,8 @@
 //  Created by Carlos Delgado on 30/10/16.
 //  Copyright © 2016 cdelg4do. All rights reserved.
 //
-//  Esta clase almacena los datos publicados en el perfil de un usuario de facebook.
-//  Se utiliza para mostrar alguna información del usuario en pantalla (su nombre, etc)
+//  This class encapsulates the info retrieved from the profile of a Facebook user.
+//  It is useful to show some user information on screen (like the name, etc)
 
 
 import Foundation
@@ -19,6 +19,7 @@ class UserInfo {
     let email: String
     let link: URL
     
+    // Class designated initializer
     init(id: String, fullName: String, email: String, link: URL) {
         
         self.userId = id
@@ -27,13 +28,16 @@ class UserInfo {
         self.link = link
     }
     
+    
+    // Builds a new UserInfo object from a valid JsonElement with the user data.
+    // (if json is not a valid element, returns nil)
+    
     class func validate(_ json: JsonElement) -> UserInfo? {
         
         let usr, full, mail, urlString: String?
         let url: URL?
         
         do {
-            // Campos que obligatoriamente debe contener el json
             usr = json["id"] as? String
             full = json["name"] as? String
             mail = json["email"] as? String
@@ -53,5 +57,4 @@ class UserInfo {
         
         return UserInfo(id: usr!, fullName: full!, email: mail!, link: url!)
     }
-    
 }

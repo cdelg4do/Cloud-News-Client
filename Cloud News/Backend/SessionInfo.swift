@@ -5,13 +5,13 @@
 //  Created by Carlos Delgado on 30/10/16.
 //  Copyright © 2016 cdelg4do. All rights reserved.
 //
-//  Esta clase representa un contenedor con los datos de una sesión activa
-//  para un usuario autenticado con el provedoor externo (Facebook)
+//  This class encapsulates all data of an active SessionInfo
+//  for a user that authenticates using an external provider (Facebook)
 
 import Foundation
 
 
-// Tipo genérico que representa a un elemento JSON
+// Alias for a generic JSON element
 typealias JsonElement = Dictionary<String, AnyObject>
 
 
@@ -25,7 +25,7 @@ class SessionInfo {
     let birthday: Date
     let link: URL
     
-    // Inicializador designado de la clase
+    // Class designated initializer
     init(id: String, token: String, firstName: String, fullName: String, email: String, birthday: Date, link: URL) {
         
         self.userId = id
@@ -37,8 +37,10 @@ class SessionInfo {
         self.link = link
     }
     
-    // Devuelve un nuevo objeto de la clase con los datos del elemento json indicado,
-    // si dicho elemento es correcto. Si no lo es, devuelve nil.
+    
+    // Builds a new SessionInfo object from a valid JsonElement with the session data.
+    // (if json is not a valid element, returns nil)
+    
     class func validate(_ json: JsonElement) -> SessionInfo? {
         
         let usr, tok, name, full, mail, bdayString, urlString: String?
@@ -46,7 +48,6 @@ class SessionInfo {
         let url: URL?
         
         do {
-            // Campos que obligatoriamente debe contener el json
             usr = json["id"] as? String
             tok = json["token"] as? String
             name = json["firstName"] as? String
@@ -77,5 +78,4 @@ class SessionInfo {
         
         return SessionInfo(id: usr!, token: tok!, firstName: name!, fullName: full!, email: mail!, birthday: bday!, link: url!)
     }
-    
 }

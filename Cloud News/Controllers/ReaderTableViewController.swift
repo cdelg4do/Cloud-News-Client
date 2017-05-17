@@ -5,28 +5,24 @@
 //  Created by Carlos Delgado on 27/10/16.
 //  Copyright © 2016 cdelg4do. All rights reserved.
 //
-//  Este controlador se encarga de mostrar el listado de noticias publicadas para los usuarios anónimos.
-//  Desde este controlador se realizan los inicios y cierres de sesión en Facebook.
-
+//  This controller is in charge to show the list of published news.
+//  (no authentication required to visualize this list)
 
 import UIKit
 
 
 class ReaderTableViewController: UITableViewController {
     
+    var appClient: MSClient                 // Azure Mobile client
+    var newsList: [DatabaseRecord]? = []    // List of news to show
+    var thumbsCache = [String:UIImage]()    // Thumbnails cache (by url)
+    var writersCache = [String:String]()    // Author names cache (by user id)
     
-    // MARK: Propiedades de la clase
-    
-    var appClient: MSClient                 // Cliente de Azure Mobile
-    var newsList: [DatabaseRecord]? = []    // Lista de noticias a mostrar en la tabla
-    var thumbsCache = [String:UIImage]()    // Caché de miniaturas
-    var writersCache = [String:String]()    // Caché de nombres de autores
-    
-    let indicator = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.gray)  // Indicador de actividad de la tabla
-    let emptyLabel = UILabel()  // Etiqueta para mostrar, en caso de que no haya datos en la tabla
+    let indicator = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.gray)  // Table activity indicator
+    let emptyLabel = UILabel()              // Label to show, in case the table is empty
     
     
-    // MARK: Inicialización de la clase
+    //MARK: Initializers
     
     init(client: MSClient) {
         
@@ -40,7 +36,7 @@ class ReaderTableViewController: UITableViewController {
     }
     
     
-    // MARK: Ciclo de vida del controlador
+    // MARK: controller lifecycle events
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -57,27 +53,27 @@ class ReaderTableViewController: UITableViewController {
     }
     
 
-    // MARK: - Table view data source
+    //MARK: - Table view data source
 
-    // Número de secciones: 1 (0 si no hay datos que mostrar)
+    // Number of sections: 1 (or 0 if there are no data to show)
     override func numberOfSections(in tableView: UITableView) -> Int {
         
         if (newsList?.isEmpty)! {   return 0    }
         else                    {   return 1    }
     }
     
-    // Número de filas en una sección: tantas como noticias publicadas (0 si no hay datos que mostrar)
+    // Number of rows in a section: as many as published news (or 0 if there are no data to show)
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
         if (newsList?.isEmpty)! {   return 0                    }
         else                    {   return (newsList?.count)!   }
     }
     
-    // Configuración de las celdas de la tabla
-    // (se muestra el título de la noticia, el autor y una miniatura de la imagen)
+    
+    // Setup of table cells (will show the news title, the author name, the publication date and a thumbnail image)
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        // Obtener los datos de la noticia correspondiente a la celda
+        // Get the news data for the given position
         let thisNews = newsList?[indexPath.row]
         
         let newsId = thisNews?["id"] as! String?
@@ -87,15 +83,15 @@ class ReaderTableViewController: UITableViewController {
         let hasImage = thisNews?["hasImage"] as! Bool?
         let imageName = thisNews?["imageName"] as! String?
         
-        // Obtención de la celda correspondiente al elemento
+        // Get the cell for this element
         let cellId = "newsCell"
-        var cell = tableView.dequeueReusableCell(withIdentifier: cellId)
         
+        var cell = tableView.dequeueReusableCell(withIdentifier: cellId)
         if cell == nil {
             cell = UITableViewCell(style: .subtitle, reuseIdentifier: cellId)
         }
         
-        // Configuración de la vista (título de la noticia, autor y fecha)
+        // View setup (title, date and default image)
         cell?.textLabel?.text = newsTitle!
         cell?.detailTextLabel?.text = "\(Utils.dateToString(newsDate!))"
         
@@ -103,18 +99,18 @@ class ReaderTableViewController: UITableViewController {
         cell?.imageView?.image = UIImage(named: "news_placeholder.png")!
         
         
-        // Obtención del nombre del autor
+        // Attempt to get the author name (look it up in the cache first, then from the Facebook Graph API)
         if let cachedName = writersCache[newsId!] {
             cell?.detailTextLabel?.text = "\(cachedName), \(Utils.dateToString(newsDate!))"
         }
         else {
             Utils.asyncGetFacebookUserInfo(userId: newsWriterId!, withClient: appClient) { (user: UserInfo?) in
                 
-                // Si se resolvió el nombre correctamente, cachearlo y actualizar la vista (en la cola principal)
                 if user != nil {
                     
                     let name = user!.fullName
-                    self.writersCache[newsId!] = name
+                    self.writersCache[newsId!] = name   // store the provided name in the cache, for future use
+                    
                     DispatchQueue.main.async {
                         cell?.detailTextLabel?.text = "\(name), \(Utils.dateToString(newsDate!))"
                     }
@@ -123,7 +119,7 @@ class ReaderTableViewController: UITableViewController {
         }
         
         
-        // Si la noticia tiene una imagen asociada, mostrarla (si no está cacheada, se descarga)
+        // If there is an image associated to this news, show its thumbnai (look it pu in the cache first, then download it)
         if hasImage! {
             
             if let cachedImage = thumbsCache[newsId!] {
@@ -134,10 +130,10 @@ class ReaderTableViewController: UITableViewController {
                 
                 Utils.downloadBlobImage(thumbnailName, fromContainer: Backend.newsImageContainerName, activityIndicator: nil) { (image: UIImage?) in
                     
-                    // Si se descargó la imagen remota, cachearla y actualizar la vista (en la cola principal)
                     if image != nil {
                         
-                        self.thumbsCache[newsId!] = image!
+                        self.thumbsCache[newsId!] = image!  // store the thumbnail image in the cache, for future use
+                        
                         DispatchQueue.main.async {
                             cell?.imageView?.image = image!
                         }
@@ -149,31 +145,30 @@ class ReaderTableViewController: UITableViewController {
         return cell!
     }
     
-    // Acción al seleccionar una celda de la tabla
+    
+    // What to do when a cell is selected -> go to the news detail view
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
         let selectedNews = newsList?[indexPath.row]
-        
         let newsId = selectedNews?["id"] as! String?
         
-        // Crear el controlador para mostrar el contenido de esa noticia, y mostrarla
         let newsDetailVC = ReaderNewsDetailViewController(id: newsId!, client: appClient)
         navigationController?.pushViewController(newsDetailVC, animated: true)
     }
     
     
-    // MARK: Acceso a los datos de la BBDD remota
+    //MARK: Access to the remote data
     
-    // Obtener las noticias del servidor y actualizar la vista
+    // Get the news from the server and update the view
     func loadNews(originIsPullRefresh: Bool) {
         
-        // Si no estamos haciendo un pull refresh, mostramos el activity indicator de la tabla
+        // If the action was triggered from a pull refresh, show the activity indicator
         if !originIsPullRefresh {
             Utils.switchActivityIndicator(indicator, show: true)
         }
         
         
-        // Invocar a la API remota que devuelve todas las noticias publicadas
+        // Send a request to retrieve all the published news
         
         appClient.invokeAPI(Backend.publishedNewsApiName,
                          body: nil,
@@ -182,22 +177,21 @@ class ReaderTableViewController: UITableViewController {
                          headers: nil,
                          completion: { (result, response, error) in
                             
-                            // Vaciar la lista de noticias, antes de añadir los nuevos datos
+                            // Empty the current news list
                             self.newsList?.removeAll()
                             
                             if let _ = error {
-                                print("\nFallo al invocar la api '\(Backend.publishedNewsApiName)':\n\(error)\n")
+                                print("\nERROR: failed request to '\(Backend.publishedNewsApiName)':\n\(error)\n")
                                 Utils.showInfoDialog(who: self, title: "Error", message: "Unable to load the published news.")
                                 
                                 self.updateViewFromModel()
                                 return
                             }
                             
-                            // Si hemos llegado hasta aquí, es que la petición se realizó correctamente
-                            print("\nResultado de la invocación a '\(Backend.publishedNewsApiName)':\n\(result!)\n")
+                            print("\nResponse from '\(Backend.publishedNewsApiName)':\n\(result!)\n")
                             
-                            // Convertir el JSON recibido en una lista de DatabaseRecord y añadir al modelo
-                            // solo los registros correctos (los que incluyan, al menos: id, title, writer, imagen y publishedAt)
+                            // Transform the json response into a list of DatabaseRecord
+                            // and add to the model only those valid records (with id, title, writer, image and publication data)
                             let json = result as! [DatabaseRecord]
                             
                             for news in json {
@@ -209,20 +203,21 @@ class ReaderTableViewController: UITableViewController {
                                     || news["imageName"] == nil
                                     || news["publishedAt"] == nil {
                                     
-                                    print("\nDescartado un del JSON elemento por campos incorrectos/ausentes\n")
+                                    print("\nA Json element was discarded (missing fields)\n")
                                 }
                                 else {
                                     self.newsList?.append(news)
                                 }
                             }
                             
-                            // Actualizar la vista, en la cola principal
+                            // Update the view (in the main queue)
                             self.updateViewFromModel()
         })
     }
     
-    // Realiza la carga de noticias y actualiza la vista, eliminando primero las cachés de imágenes y nombres
-    // (para ejecutar cuando el usuario haga un pull refresh)
+    
+    // Launches the whole process of removing the image and name caches, downloading the news and updating the view
+    // (to be invoked when the user starts a pull refresh)
     func fullLoadNews() {
         
         thumbsCache.removeAll()
@@ -231,19 +226,19 @@ class ReaderTableViewController: UITableViewController {
     }
     
     
-    // MARK: Funciones auxiliares para el manejo de la UI
+    // MARK: auxiliary functions
     
-    // Configuración inicial de los elementos de la UI de este controlador
+    // Initial setup of the UI elements
     func setupUI() {
         
-        // Etiqueta para mostrar si no hay datos en la tabla
+        // Label to show in case the table is empty
         emptyLabel.text = "No news to show right now, please pull down to refresh."
         emptyLabel.textColor = UIColor.gray
         emptyLabel.numberOfLines = 0
         emptyLabel.textAlignment = NSTextAlignment.center
         emptyLabel.sizeToFit()
         
-        // RefreshControl para refrescar la tabla tirando de ella hacia abajo (pull refresh)
+        // RefreshControl to refresh the table by a pull refresh
         refreshControl = UIRefreshControl()
         refreshControl?.backgroundColor = UIColor.clear
         refreshControl?.tintColor = UIColor.black
@@ -255,12 +250,13 @@ class ReaderTableViewController: UITableViewController {
         
         self.tableView.separatorStyle = .none
         
-        self.tableView.backgroundView = indicator   // ActivityIndicator que se mostrará durante la carga de la tabla
-        title = "Latest News"   // Título para mostrar
+        self.tableView.backgroundView = indicator   // ActivityIndicator to show while the table is loading
+        title = "Latest News"                       // Title to show
     }
     
-    // Actualizar la vista con los datos del modelo, en la cola principal
-    // (detiene los indicadores de actividad, muestra las celdas y el mensaje de tabla vacía, si es necesario)
+    
+    // Updates the view with data from the model, in the main queue
+    // (stops all activity indicators, shows the cells and the empty label if needed)
     func updateViewFromModel() {
         
         DispatchQueue.main.async {
@@ -270,16 +266,18 @@ class ReaderTableViewController: UITableViewController {
         }
     }
     
-    // Detiene y oculta todos los indicadores de actividad de la tabla
-    // (tanto el estándar como el del pull refresh)
+    
+    // Stops and hides all activity indicators in the table
+    // (both the standard indicator and the pull refresh indicator)
     func stopAllActivityIndicators() {
         
         Utils.stopTableRefreshing(self)
         Utils.switchActivityIndicator(self.indicator, show: false)
     }
     
-    // Si la tabla está vacía, muestra un aviso al usuario
-    // En caso contrario, solo asigna el activity indicator como background de la tabla
+    
+    // If the table is empty, shows the empty label on screen.
+    // Otherwise, just assigns the activity indicator as the table background.
     func showEmptyLabelIfNeeded() {
         
         DispatchQueue.main.async {
@@ -292,5 +290,4 @@ class ReaderTableViewController: UITableViewController {
             }
         }
     }
-
 }

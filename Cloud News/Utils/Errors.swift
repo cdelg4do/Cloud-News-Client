@@ -5,10 +5,8 @@
 //  Created by Carlos Delgado on 28/10/16.
 //  Copyright © 2016 cdelg4do. All rights reserved.
 //
-//  Este fichero contiene definiciones de errores para
-//  el lanzamiento de excepciones personalizada en la aplicación.
-//  Se derivan de Error para que puedan ser devueltas con throw().
-
+// This file contains the definition of errors that can be thrown during the execution
+// (all derived from Error, so that they can be returned with throw)
 
 import Foundation
 

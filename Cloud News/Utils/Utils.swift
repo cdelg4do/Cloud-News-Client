@@ -4,9 +4,9 @@
 //
 //  Created by Carlos Delgado on 27/10/16.
 //  Copyright © 2016 cdelg4do. All rights reserved.
-//
-//  Esta clase contiene proporciona funciones auxiliares para operaciones comunes.
-//  Todos los métodos de la clase son estáticos.
+//  
+//  This class provides auxiliary functions to perform common operations.
+//  All of its methods are static.
 
 
 import Foundation
@@ -16,8 +16,8 @@ import CoreLocation
 
 class Utils {
     
-    // Clausuras de finalización, funciones que reciben un UIImage?, un Data?, un String? o un UserInfo?
-    // y que se ejecutarán siempre en la cola principal
+    // Aliases for trailing closures, these functions will always be executed in the main queue.
+    // They receive an optional so that they can manage nil as the result of some previous operation.
     
     typealias imageClosure = (UIImage?) -> ()
     typealias dataClosure = (Data?) -> ()
@@ -26,159 +26,147 @@ class Utils {
     typealias boolClosure = (Bool) -> ()
     
     
-    // Función que realiza la descarga de un blob de una imagen contenida en un Storage Container remoto, en segundo plano
-    // Si la descarga se realiza con éxito, produce la UIImage resultante.
-    // Si no se pudo descargar o no es una imagen, produce nil.
+    // Method to perform the async download of an image blob stored in a remote Azure Storage Container.
+    // If the download succeeds, passes a new UIImage object with the image to the closure. Otherwise, passes nil.
     //
-    // Parámetros:
+    // Parameters:
     //
-    // - blobName: nombre del blob que se quiere descargar
-    // - containerName: cadena con el nombre del container en que se encuentra el blob
-    // - activityIndicator: activa y desactiva el indicador de actividad antes y después de la operación asíncrona (si no se usa, dejar a nil)
-    // - completion: clausura de finalización que recibe un UIImage? resultante, que se ejecutará en la cola principal
+    // - blobName: name of the blob to be downloaded
+    // - containerName: name of the Storage Container where the blob is located
+    // - activityIndicator: activity indicator to enable while the async task is performed (if not used, leave it to nil)
+    // - completion: trailing closure that processes the resulting UIImage? in the main thread
     
     class func downloadBlobImage(_ blobName: String, fromContainer containerName: String, activityIndicator: UIActivityIndicatorView?, completion: @escaping imageClosure) {
         
-        // Obtener el enlace al blob
-        // (credenciales > cuenta de storage > cliente de storage asociado > contenedor remoto > blob de la imagen)
+        // Build a link to the blob
+        // (credentials > storage account > storage client tied to the account > remote container > image blob)
         
         var imageBlob: AZSCloudBlockBlob
         
         do {
-            // Configuración del cliente de Storage
             let storageCredentials = AZSStorageCredentials(accountName: Backend.storageAccountName, accountKey: Backend.storageKeyString)
             let storageAccount = try AZSCloudStorageAccount(credentials: storageCredentials, useHttps: true)
             let storageClient = ( storageAccount.getBlobClient() )!
             
-            // Contenedor de las imagenes
             let imagesContainer: AZSCloudBlobContainer = storageClient.containerReference(fromName: containerName)
             
-            // Blob de la imagen
             imageBlob = imagesContainer.blockBlobReference(fromName: blobName)
         }
-        
-            
-        // Si hubo errores, invocar a la clausura con nil y finalizar
         catch {
-            print("\nNo pudo construirse el blob de la imagen a descargar\n")
+            print("\nERROR: Unable to build the link for the target blob\n")
             
             completion(nil)
             return
         }
         
-        
-        // Si no hubo errores, intentamos descargar el blob en segundo plano
         imageBlob.downloadToData { (error, data) in
             
             if let _ = error {
-                
-                print("\nError al descargar el blob remoto\n\(error!)\n")
+                print("\nERROR: unable to download remote blob:\n\(error!)\n")
                 
                 completion(nil)
                 return
             }
             
-            print("\nBlob descargado con éxito! (\((data?.count)!) bytes)\n")
+            print("\nBlob successfully downloaded! (\((data?.count)!) bytes)\n")
             completion( UIImage(data: data!) )
         }
-        
     }
     
     
+    // Method to perform the async upload of an image to a remote Azure Storage Container.
+    // The image will be encoded as JPEG with no compression.
+    // If the upload succeeds, passes 'true' to the closure. Otherwise, passes 'false'.
+    //
+    // Parameters:
+    //
+    // - image: UIImage object to upload
+    // - blobName: name for the new blob created in the container
+    // - containerName: name of the Storage Container where the blob will be stored
+    // - activityIndicator: activity indicator to enable while the async task is performed (if not used, leave it to nil)
+    // - completion: trailing closure that receives a boolean with the operation result, to be executed in the main thread
     
     class func uploadBlobImage(_ image: UIImage, blobName: String, toContainer containerName: String, activityIndicator: UIActivityIndicatorView?, completion: @escaping boolClosure) {
-        
-        // Obtener el enlace al blob
-        // (credenciales > cuenta de storage > cliente de storage asociado > contenedor remoto > blob de la imagen)
         
         var imageBlob: AZSCloudBlockBlob
         
         do {
-            // Configuración del cliente de Storage
             let storageCredentials = AZSStorageCredentials(accountName: Backend.storageAccountName, accountKey: Backend.storageKeyString)
             let storageAccount = try AZSCloudStorageAccount(credentials: storageCredentials, useHttps: true)
             let storageClient = ( storageAccount.getBlobClient() )!
             
-            // Contenedor de las imagenes
             let imagesContainer: AZSCloudBlobContainer = storageClient.containerReference(fromName: containerName)
             
-            // Blob de la imagen
             imageBlob = imagesContainer.blockBlobReference(fromName: blobName)
         }
-            
-        // Si hubo errores, invocar a la clausura con false y finalizar
         catch {
-            print("\nNo pudo construirse el blob de la imagen a enviar\n")
+            print("\nERROR: Unable to build the link for the target blob\n")
             completion(false)
             return
         }
         
-        
-        // Si no hubo errores, intentamos subir el blob en segundo plano
         imageBlob.upload(from: UIImageJPEGRepresentation(image, 1.0)!, completionHandler: { (error) in
             
             if error != nil {
-                print("\nError al subir el blob al contenedor remoto:\n\(error)\n")
+                print("\nERROR: unable to upload image to a remote blob:\n\(error)\n")
+                
                 completion(false)
                 return
             }
             
-            print("\nBlob subido con éxito!\n")
+            print("\nImage successfully uploaded!\n")
             completion(true)
         })
     }
     
     
+    // Method to perform the async deletion of a blob stored in a remote Azure Storage Container.
+    // If the operation succeeds, passes 'true' to the closure. Otherwise, passes 'false'.
+    //
+    // Parameters:
+    //
+    // - blobName: name of the blob to be deleted
+    // - containerName: name of the Storage Container where the blob is stored
+    // - completion: trailing closure that receives a boolean with the operation result, to be executed in the main thread
+    
     class func removeBlob(withName blobName: String, fromContainer containerName: String, completion: @escaping boolClosure) {
-        
-        // Obtener el enlace al blob
-        // (credenciales > cuenta de storage > cliente de storage asociado > contenedor remoto > blob de la imagen)
         
         var myBlob: AZSCloudBlockBlob
         
         do {
-            // Configuración del cliente de Storage
             let storageCredentials = AZSStorageCredentials(accountName: Backend.storageAccountName, accountKey: Backend.storageKeyString)
             let storageAccount = try AZSCloudStorageAccount(credentials: storageCredentials, useHttps: true)
             let storageClient = ( storageAccount.getBlobClient() )!
             
-            // Contenedor
             let imagesContainer: AZSCloudBlobContainer = storageClient.containerReference(fromName: containerName)
             
-            // Blob del fichero
             myBlob = imagesContainer.blockBlobReference(fromName: blobName)
         }
-        
-        // Si hubo errores, invocar a la clausura con false y finalizar
         catch {
-            print("\nNo pudo construirse el blob del fichero a eliminar\n")
+            print("\nERROR: Unable to build the link for the target blob\n")
             completion(false)
             return
         }
         
-        // Si no hubo errores, intentamos eliminar el blob
         myBlob.delete(completionHandler: { (error) in
             
             if error != nil {
-                print("\nError al eliminar el blob del contenedor remoto:\n\(error)\n")
+                print("\nERROR: unable to remove remote blob:\n\(error)\n")
                 completion(false)
                 return
             }
             
-            print("\nBlob eliminado con éxito!\n")
+            print("\nBlob successfully removed!\n")
             completion(true)
         })
     }
     
     
-    
-    
-    // Obtención de un objeto UserInfo? con la información del usuario de facebook indicado por userId.
-    // El objeto obtenido, se tratará en una clausura de tipo userClosure.
+    // Method to request the user information for a given Facebook UserId from the Facebook Graph API.
+    // If the operation succeeds, passes a UserInfo object to the trailing closure. Otherwise, passes nil.
     
     class func asyncGetFacebookUserInfo(userId: String, withClient appClient: MSClient, completion: @escaping userClosure) {
         
-        // Invocar a la API remota que devuelve todas las noticias publicadas
         appClient.invokeAPI(Backend.fbGraphApiName,
                             body: nil,
                             httpMethod: "GET",
@@ -187,38 +175,32 @@ class Utils {
                             completion: { (result, response, error) in
                                 
                                 if let _ = error {
-                                    print("\nError al invocar a '\(Backend.fbGraphApiName)':\n\(error!)\n")
+                                    print("\nERROR: failed request to '\(Backend.fbGraphApiName)':\n\(error!)\n")
                                     completion(nil)
                                     return
                                 }
                                 
-                                // Si la petición se realizó correctamente, convertir el objeto recibido en un JsonElement
-                                // y validar si es correcto
-                                print("\nResultado de la invocación a '\(Backend.fbGraphApiName)':\n\(result!)\n")
+                                print("\nResponse from '\(Backend.fbGraphApiName)':\n\(result!)\n")
+                                
+                                // Validate the response (if it is correct, builds a new UserInfo object. If not, returns nil)
                                 let userInfo = UserInfo.validate(result as! JsonElement)
+                                
                                 completion(userInfo)
         })
-        
     }
  
     
-    // Función que obtiene (en segundo plano) la dirección física correspondiente a unas coordenadas
-    // Si la dirección dispone de varios niveles de detalle, devolverá solo los dos niveles más generales (ej. Provincia y País)
-    //
-    // Si la operación se realiza con éxito, produce el String correspondiente.
-    // Si no, produce nil.
-    //
-    // Parámetros:
-    //
-    // - lat, long: coordenadas de la ubicación que se quiere identificar
-    // - completion: clausura de finalización que recibe un String? resultante, que se ejecutará en la cola principal
+    // Async method to get the address corresponding to some Gps coordinates (given by a CLLocation object)
+    // If the resolved address has several detail levels, will return only the top two (i.e. region and country).
+    // 
+    // If the operation succeeds, passes a String with the address to the trailing closure. Otherwise passes nil.
     
     class func asyncReverseGeolocation(location: CLLocation, completion: @escaping stringClosure) {
         
         CLGeocoder().reverseGeocodeLocation(location, completionHandler: { (placemarks, error) -> Void in
             
             if error != nil {
-                print("\nERROR: No ha sido posible realizar la geolocalización inversa\n" + (error?.localizedDescription)!)
+                print("\nERROR: Unable to perform the reverse geolocation\n" + (error?.localizedDescription)!)
                 completion(nil)
             }
             
@@ -226,25 +208,26 @@ class Utils {
                     let placemark = placemarks.last,
                     let lines: Array<String> = placemark.addressDictionary?["FormattedAddressLines"] as? Array<String> {
                 
-                        //completion( lines.joined(separator: ", ") )
-                
                         var address = lines[0]
-                        if lines.count > 1  {   address = lines[lines.count-2] + ", " + lines[lines.count-1] }
+                
+                        if lines.count > 1  {
+                            address = lines[lines.count-2] + ", " + lines[lines.count-1]
+                        }
+                
                         completion(address)
             }
                 
             else {
-                    print("\nERROR: No fue posible hallar una dirección para las coordenadas dadas\n")
+                    print("\nERROR: Unable to resolve an address for the given coordinates\n")
                     completion(nil)
-                }
+            }
         })
-        
     }
     
     
-    // Función que re-escala una imagen, para que entre dentro del CGSize indicado
-    // (la imagen resultante mantiene su proporción original)
-    // (ver https://iosdevcenters.blogspot.com/2015/12/how-to-resize-image-in-swift-in-ios.html)
+    // Re-scales a given UIImage to fit inside the the given CGSize (the image keeps its aspect ratio)
+    // (based on code from https://iosdevcenters.blogspot.com/2015/12/how-to-resize-image-in-swift-in-ios.html)
+    
     class func resizeImage(_ image: UIImage, toSize targetSize: CGSize) -> UIImage {
         
         let size = image.size
@@ -273,16 +256,19 @@ class Utils {
     }
     
     
-    // Función que indica el tamaño de la pantalla del dispositivo
+    // Gets the device screen size
     class func screenSize() -> CGSize {
         
         return UIScreen.main.nativeBounds.size
     }
     
-    // 
+    
+    // Method to generate a random value for a GPS coordinate, useful to mock locations in the simulator.
+    // (if isLat is true, value is between -90º and 90º. Otherwise, value is between -180º and 180º)
+    
     class func randomGPSCoordinate(isLat: Bool) -> Double {
         
-        var abs: CGFloat = CGFloat(Float(arc4random()) / Float(UINT32_MAX))   // entre 0 y 1
+        var abs: CGFloat = CGFloat(Float(arc4random()) / Float(UINT32_MAX))   // this gives a value between 0 and 1
         if isLat    {   abs = abs * 90.0    }
         else        {   abs = abs * 180.0   }
         
@@ -293,7 +279,8 @@ class Utils {
         return Double(abs * sign)
     }
     
-    // Función que convierte un objeto NSDate a la correspondiente cadena de texto
+    
+    // Converts a NSDate date object to a formatted String
     class func dateToString(_ date: NSDate) -> String {
         
         let formatter = DateFormatter()
@@ -303,7 +290,7 @@ class Utils {
     }
     
     
-    // Función que muestra/oculta todas las subvistas de una vista
+    // Shows/hides all the subviews of a given view
     class func changeSubviewsVisibility(ofView parentView: UIView, hide newStatus: Bool) {
         
         for view in parentView.subviews {
@@ -312,8 +299,8 @@ class Utils {
     }
     
     
-    // Función que muestra en un ViewController un diálogo (con un título, un mensaje y un botón de aceptar)
-    // Se ejecuta siempre en la cola principal
+    // Shows an information dialog box (with title, message and an 'OK' button) in a ViewController
+    // (always in the main queue)
     class func showInfoDialog( who parent: UIViewController, title dialogTitle: String, message dialogMessage: String) {
         
         DispatchQueue.main.async {
@@ -322,11 +309,10 @@ class Utils {
             alert.addAction( UIAlertAction(title: "OK", style: .default, handler: nil) )
             parent.present(alert, animated: true, completion: nil)
         }
-        
     }
     
     
-    // Función que muestra un diálogo (con un título, un mensaje y un botón de cerrar el controlador actual)
+    // Shows an information dialog box (with title, message, and a 'Close' button to close the current controller)
     class func showCloseControllerDialog( who parent: UIViewController, title dialogTitle: String, message dialogMessage: String) {
         
         let actionClose = UIAlertAction(title: "Close", style: .default) { (alertAction) in
@@ -340,7 +326,8 @@ class Utils {
     }
     
     
-    // Función que muestra/oculta un ActivityIndicatorView
+    // Shows/hides a given ActivityIndicatorView
+    // (always in the main queue)
     class func switchActivityIndicator(_ indicator: UIActivityIndicatorView?, show: Bool) {
         
         DispatchQueue.main.async {
@@ -357,7 +344,7 @@ class Utils {
     }
     
     
-    // Función que detiene el pull refresh de un UITableViewController, si estaba teniendo lugar
+    // Stops a pull refresh happening in a given UITableViewController (if it was happening)
     class func stopTableRefreshing(_ controller: UITableViewController) {
         
         DispatchQueue.main.async {
@@ -368,6 +355,8 @@ class Utils {
         }
     }
     
+    
+    // Stops a UIRefreshControl from keep refreshing (if it was refreshing)
     class func stopTableRefreshing(_ refreshControl: UIRefreshControl?) {
         
         DispatchQueue.main.async {

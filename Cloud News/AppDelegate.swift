@@ -16,11 +16,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         
-        // Crear el controlador inicial y un navigation controller con él
+        // Create the initial controller and a navigation controller for it
         let initialVC = InitialViewController(nibName: nil, bundle: nil)
         let navVC = UINavigationController(rootViewController: initialVC)
         
-        // Crear la window, asignarle el navigation controller como root y mostrarla
+        // Create the window, then assign it to the NC as root and show it
         window = UIWindow(frame: UIScreen.main.bounds)
         window?.rootViewController = navVC
         window?.makeKeyAndVisible()

@@ -5,20 +5,18 @@
 //  Created by Carlos Delgado on 27/10/16.
 //  Copyright © 2016 cdelg4do. All rights reserved.
 //  
-//  Este fichero contiene datos de referencia para que el cliente pueda conectar
-//  correctamente con el backend de Microsoft Azure.
+//  This file contains all the constants needed by the app to connect to the Azure backend
 
 
 import Foundation
 
 
-// Tipo genérico que representa a un registro de la Base de datos
-// (un diccionario cuyas claves son cadenas, y cuyos valores son cualquier tipo)
-// typealias DatabaseRecord = Dictionary<AnyHashable, Any>
+// Alias for a generic database record
+// (a dictionary where the keys are Strings, and the values can be any object)
 typealias DatabaseRecord = Dictionary<String, AnyObject>
 
 
-// Posibles estados de un artículo (tal como aparecen en la BBDD)
+// Every article must be in one of these states (this is how it appears in the database)
 enum ArticleStatus: String {
     
     case draft      = "draft"
@@ -29,10 +27,10 @@ enum ArticleStatus: String {
 
 class Backend {
     
-    // Url del App Service de Azure
+    // Url of the Azure App Service
     static let mobileAppUrlString: String = "https://cloudnews.azurewebsites.net"
     
-    // Nombre de los endpoints de la API del servidor
+    // Backend API endpoints
     static let publishedNewsApiName: String = "published_news"
     static let readNewsApiName: String = "read_news"
     static let readArticleApiName: String = "read_article"
@@ -40,14 +38,13 @@ class Backend {
     static let myArticlesApiName: String = "my_articles"
     static let fbGraphApiName: String = "fbapigraph_query"
     
-    // Nombre de las tablas de la BBDD
+    // Database table names
     static let newsTableName: String = "News"
     
-    // Credenciales para la cuenta de Azure Storage
+    // Azure Storage account credentials
     static let storageAccountName: String = "cloudnewsstorage"
     static let storageKeyString: String = "vvRR0VjNHq9h74OCkqS1GRhdOSsBxF10yL7JPeqib92WzU5O9O9ciBope8mSssf8Yuq/uIOQsPVrfYCcGxkLWg=="
     
-    // Container para las imágenes de las noticias
+    // Name of the container for the news images
     static let newsImageContainerName: String = "news-images"
-    
 }

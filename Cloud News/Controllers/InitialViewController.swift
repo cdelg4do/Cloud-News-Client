@@ -5,8 +5,8 @@
 //  Created by Carlos Delgado on 26/10/16.
 //  Copyright © 2016 cdelg4do. All rights reserved.
 //
-//  Este controlador se encarga de mostrar el listado de noticias publicadas para los usuarios anónimos.
-//  Desde este controlador se realizan los inicios y cierres de sesión en Facebook.
+//  This is the initial controller of the app, lets the user choose to enter the reader mode
+//  (to read all published news) or to enter the writer mode (to read/update his own articles).
 
 
 import UIKit
@@ -14,8 +14,8 @@ import UIKit
 
 class InitialViewController: UIViewController {
     
-    // Cliente de Azure Mobile
-    // (se inicializa aquí, y se comparte en los demás controladores de la aplicación)
+    // Azure Mobile Client
+    // (initialized here, shared with all the other controllers in the app)
     var appClient: MSClient = MSClient(applicationURL: URL(string: Backend.mobileAppUrlString)!)
     
     
@@ -26,23 +26,19 @@ class InitialViewController: UIViewController {
     }
     
     
-    // MARK: Acciones al pulsar los botones de la vista
+    //MARK: Actions from the UI elements
     
-    // Botón de leer noticias
+    // 'Read News' button -> go to the controller that shows all the news (articles already published)
     @IBAction func enterReaderMode(_ sender: AnyObject) {
         
-        // Crear el controlador para mostrar la lista de noticias publicadas, y mostrarlo
         let readerVC = ReaderTableViewController(client: appClient)
         navigationController?.pushViewController(readerVC, animated: true)
     }
     
-    // Botón de escribir noticias
+    // 'Write News' button -> go to the controller that shows my own articles
     @IBAction func enterWriterMode(_ sender: AnyObject) {
         
-        // Crear el controlador para mostrar la lista de noticias del autor, y mostrarlo
         let writerVC = WriterArticlesViewController(client: appClient)
         navigationController?.pushViewController(writerVC, animated: true)
     }
-    
 }
-
