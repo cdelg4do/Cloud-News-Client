@@ -152,7 +152,7 @@ class ReaderNewsDetailViewController: UIViewController {
             if lat != nil && long != nil {  newsLocation = CLLocation(latitude: lat!, longitude: long!) }
         }
         catch {
-            print("\nERROR The Json response sent by the server is nor valid\n")
+            print("\nERROR The Json response sent by the server is not valid\n")
             Utils.showCloseControllerDialog(who: self, title: "Error", message: "Incorrect server response, please try again.")
             return
         }
