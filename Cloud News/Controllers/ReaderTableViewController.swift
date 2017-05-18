@@ -119,7 +119,7 @@ class ReaderTableViewController: UITableViewController {
         }
         
         
-        // If there is an image associated to this news, show its thumbnai (look it pu in the cache first, then download it)
+        // If there is an image associated to this news, show its thumbnai (look it up in the cache first, then download it)
         if hasImage! {
             
             if let cachedImage = thumbsCache[newsId!] {

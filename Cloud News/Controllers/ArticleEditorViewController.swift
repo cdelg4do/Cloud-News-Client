@@ -5,8 +5,8 @@
 //  Created by Carlos Delgado on 31/10/16.
 //  Copyright © 2016 cdelg4do. All rights reserved.
 //
-//  Este controlador muestra la vista de edición de los artículos, por parte de un usuario autenticado.
-//  Desde este controlador se editan los borradores, se salvan y se envian para su publicación.
+//  This controller is in charge to show the editable view of an article written by an authenticated user.
+//  Drafts are updated, saved and submitted from here.
 
 
 import UIKit
@@ -15,7 +15,22 @@ import CoreLocation
 
 class ArticleEditorViewController: UIViewController {
     
-    // MARK: Referencia a los objetos de la interfaz
+    var appClient: MSClient             // Azure client tied to the mobile app
+    var session: SessionInfo            // Info about the current user session
+    var articleId: String?              // Article Id
+    var draftData: [AnyHashable : Any]? // Article data container
+    
+    // Flag that indicates if an image for the article was already chosen.
+    // (When its value changes to false, the 'select image' button is disabled. When changes to true, the button is enabled)
+    var hasImageSelected: Bool {
+        
+        didSet{
+            btnClear.isEnabled = hasImageSelected
+        }
+    }
+    
+    
+    //MARK: Reference to UI elements
     
     @IBOutlet weak var titleBox: UITextField!
     @IBOutlet weak var labelCreated: UILabel!
@@ -28,24 +43,7 @@ class ArticleEditorViewController: UIViewController {
     @IBOutlet weak var btnSubmit: UIBarButtonItem!
     
     
-    // MARK: Propiedades de la clase
-    
-    var appClient: MSClient             // Cliente asociado a la mobile app
-    var session: SessionInfo            // Información sobre la sesión del usuario actual
-    var articleId: String?              // Id del borrador que se está editando
-    var draftData: [AnyHashable : Any]? // Contenedor para los datos del registro de la BBDD sobre el borador
-    
-    // Flag que indica si ya se escogió una imagen para el artículo
-    // (si es false, el botón de seleccionar imagen se desactiva. Y si es true, se activa)
-    var hasImageSelected: Bool {
-        
-        didSet{
-            btnClear.isEnabled = hasImageSelected
-        }
-    }
-    
-    
-    // MARK: Inicialización de la clase
+    //MARK: Initializers
     
     init(id: String?, client: MSClient, session: SessionInfo) {
         
@@ -64,7 +62,7 @@ class ArticleEditorViewController: UIViewController {
     }
     
     
-    // MARK: Ciclo de vida del controlador
+    //MARK: controller lifecycle events
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -76,36 +74,31 @@ class ArticleEditorViewController: UIViewController {
         
         btnClear.isEnabled = false
         
-        // Si se trata de un borrador ya existente, descargar y mostrar sus datos
+        // If we are editing an existing draft, load and show the data from the server
         if articleId != nil {
-            
-            // Todo el contenido de la vista permanecerá oculto
-            // hasta que se carge la información de la noticia
-            //Utils.changeSubviewsVisibility(ofView: mainView, hide: true)
             
             loadExistingDraft()
         }
     }
     
     
-    // MARK: Acciones al pulsar los botones de la interfaz
+    //MARK: actions from UI elements
     
-    // Botón de escoger imagen de la galería
+    // 'Choose from gallery' button
     @IBAction func galleryAction(_ sender: AnyObject) {
         
-        // Selector de imágenes (acceso a la galería)
         let picker = UIImagePickerController()
         picker.sourceType = .photoLibrary
         picker.delegate = self
         
-        // Mostrarlo de forma modal
+        // Show the image selector in modal way
         self.present(picker, animated: true) {
-            // Acciones a realizar nada más mostrarse el picker
+            // Additional actions to do right after the picker is shown
             // ...
         }
     }
     
-    // Botón de eliminar imagen escogida
+    // 'Clear image' button
     @IBAction func clearAction(_ sender: AnyObject) {
         
         if hasImageSelected {
@@ -115,75 +108,70 @@ class ArticleEditorViewController: UIViewController {
         }
     }
     
-    // Botón de guardar borrador
+    // 'Save draft' button
     @IBAction func saveAction(_ sender: AnyObject) {
         
-        // Comprobar que los campos de texto del título y el contenido no estén vacíos
-        // (aquí se podrían incluir otras comprobaciones adicionales)
-        
+        // Make sure the title and text fields are not empty
         if titleBox.text == "" || contents.text == "" {
-            print("\nNo es posible guardar los cambios actuales (título y/o texto del artículo vacíos)\n")
+            print("\nERROR: Unalble to save current draft (title and/or article text empty)\n")
             Utils.showInfoDialog(who: self, title: "Empty fields", message: "Either title or text are empty, please write something :)")
             return
         }
         
-        // Obtención de las coordenadas actuales
+        // Location for the article
+        // (TO-DO: replace these debug calls with an actual request to get the device location)
         let lat = Utils.randomGPSCoordinate(isLat: true)
         let lon = Utils.randomGPSCoordinate(isLat: false)
         
-        // Si aún no teníamos datos en draftData, creamos un nuevo borrador en la BBDD.
-        // En caso contrario, actualizamos el borrador ya existente.
+        // Send appropriate request to the server: save the new draft or update the existing one
         if self.draftData == nil {
-            
             saveNewDraft(title: titleBox.text!, text: contents.text, latitude: lat, longitude: lon)
         }
         else {
-            
             updateExistingDraft(title: titleBox.text!, text: contents.text, latitude: lat, longitude: lon)
         }
     }
     
-    // Botón de enviar borrador
+    // 'Submit draft' button
     @IBAction func submitAction(_ sender: AnyObject) {
         
         if self.draftData == nil {
-            print("\nNo se puede enviar un artículo sin haberlo guardado primero\n")
-            Utils.showInfoDialog(who: self, title: "New article", message: "This is a new article: please save it first.")
+            print("\nERROR: Unable to submit an unsaved draft,\n")
+            Utils.showInfoDialog(who: self, title: "Submit New article", message: "This is a new article: please save it first.")
             return
         }
         
-        // Objeto a actualizar en la BBDD
+        // Object to update in the database
         var updateItem = self.draftData!
         updateItem["status"] = ArticleStatus.submitted.rawValue
-        print("\nRegistro a actualizar en la BBDD:\n\(updateItem)\n")
         
-        // Actualizar el registro en la BBDD con los datos del registro temporal anterior
+        print("\nRecord to be updated in the database:\n\(updateItem)\n")
+        
         appClient.table(withName: Backend.newsTableName).update(updateItem, completion: { (result, error) in
             
             if let _ = error {
-                print("\nError al enviar el borrador:\n\(error)\n")
-                Utils.showInfoDialog(who: self, title: "Something went wrong", message: "Possible reason is that a newer draft version exists. Please try going back and loading this draft again.")
+                print("\nERROR: Failed to submit draft:\n\(error)\n")
+                Utils.showInfoDialog(who: self, title: "Something went wrong", message: "It might happen that a newer draft version exists. Please try going back and loading this draft again.")
                 return
             }
             
-            // Guardar en el modelo local el registro actualizado devuelto por el servidor
+            // Update the local model with the updated data returned by the server
             self.draftData = result!
-            print("\nBorrador enviado correctamente:\n\(self.draftData!)\n")
+            
+            print("\nERROR: draft submitted successfully:\n\(self.draftData!)\n")
             Utils.showInfoDialog(who: self, title: "Done!", message: "Your article has been submitted. Please allow up to 15 min. until it gets published.")
             
-            // Actualizar la fecha de modificación en la vista
+            // Update the modified date on screen and disable editing
             self.updateViewDatesOnly()
-            
-            // Una vez enviado un borrador, ya no se puede seguir mofificando
             self.disableAllElements()
         })
     }
-
 }
 
 
-// MARK: Funciones para creación y visualización del modelo local
+//MARK: class extensions
 
+// Methods to create and show the local model
 extension ArticleEditorViewController {
     
     // Descarga del servidor los datos del borrador y los muestra en la vista

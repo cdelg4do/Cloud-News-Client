@@ -5,13 +5,12 @@
 //  Created by Carlos Delgado on 27/10/16.
 //  Copyright © 2016 cdelg4do. All rights reserved.
 //
-//  Este controlador muestra la vista de solo lectura de un artículo determinado.
-//  La variable anonymous del init() determina qué API se utilizará para descargar los datos del servidor:
+//  This controller shows a read-only view of an article.
 //  
-//  - Si es true ---> Api read_news (anónima, solo sirve para mostrar artículos en estado published)
-//  - Si es false --> Api read_articles (requiere que el usuario esté autenticado, sirve para published y submitted)
-//  
-//  Cuando se descarga un artículo publicado: read_news incrementa el contador de visitas, read_articles no.
+//  The value of 'anonymous' in the init() determines what API will be invoked to get the remote data:
+//
+//  - true:     read_news       (for anonymous users, only can show published articles and increments the view counter)
+//  - false:    read_articles   (for authenticated users, can any article as long as it belongs to the user, and does not increment the view counter)
 
 
 import UIKit
@@ -19,8 +18,6 @@ import CoreLocation
 
 
 class ReaderNewsDetailViewController: UIViewController {
-    
-    // MARK: Referencia a los objetos de la interfaz
     
     @IBOutlet weak var mainView: UIView!
     @IBOutlet weak var titleLabel: UILabel!
@@ -30,21 +27,16 @@ class ReaderNewsDetailViewController: UIViewController {
     @IBOutlet weak var newsImage: UIImageView!
     @IBOutlet weak var locationLabel: UILabel!
     @IBOutlet weak var newsText: UITextView!
-    
-    // Indicador de actividad de la imagen
     @IBOutlet weak var imageIndicator: UIActivityIndicatorView!
    
     
-    // MARK: Propiedades de la clase
-    
-    var appClient: MSClient             // Cliente asociado a la mobile app
-    var currentNewsId: String           // Id de la noticia a mostrar
-    var currentNews: DatabaseRecord?    // Contenedor para los datos del registro de la BBDD sobre la noticia a mostrar
-    
+    var appClient: MSClient
+    var currentNewsId: String
+    var currentNews: DatabaseRecord?
     let useAnonymousApi: Bool
     
     
-    // MARK: Inicialización de la clase
+    //MARK: Initializers
     
     init(id: String, anonymous: Bool, client: MSClient) {
         
@@ -65,13 +57,12 @@ class ReaderNewsDetailViewController: UIViewController {
     }
     
     
-    // MARK: Ciclo de vida del controlador
+    //MARK: controller lifecycle events
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        // Todo el contenido de la vista permanecerá oculto
-        // hasta que se carge la información de la noticia
+        // All views in the controller will hide til the article is loaded
         Utils.changeSubviewsVisibility(ofView: mainView, hide: true)
         
         loadNewsDetail()
@@ -82,15 +73,15 @@ class ReaderNewsDetailViewController: UIViewController {
     }
     
     
-    // MARK: Acceso a los datos de la BBDD remota
+    //MARK: Acceso to the remote data
     
-    // Descarga del servidor los datos de la noticia y los muestra en la vista
+    // Download the article data from the server invoking the appropriate api, then show it on screen
     func loadNewsDetail() {
         
         let remoteApi: String
         
-        if (useAnonymousApi)    {   remoteApi = Backend.readNewsApiName     }    // Api anónima, solo noticias ya publicadas
-        else                    {   remoteApi = Backend.readArticleApiName }    // Con autenticación, también para artículos entregados
+        if (useAnonymousApi)    {   remoteApi = Backend.readNewsApiName     }   // Anonymous user, published articles only
+        else                    {   remoteApi = Backend.readArticleApiName  }   // Authenticated user
         
         appClient.invokeAPI(remoteApi,
                             body: nil,
@@ -100,25 +91,22 @@ class ReaderNewsDetailViewController: UIViewController {
                             completion: { (result, response, error) in
                                 
                                 if let _ = error {
-                                    print("\nFallo al invocar la api '\(remoteApi)':\n\(error)\n")
+                                    print("\nERROR: failed request to '\(remoteApi)':\n\(error)\n")
                                     Utils.showCloseControllerDialog(who: self, title: "Error", message: "Unable to retrieve remote data, please try again.")
                                     return
                                 }
                                 
-                                // Si la petición se realizó correctamente, convertir el JSON recibido en una lista de DatabaseRecord
-                                print("\nResultado de la invocación a '\(remoteApi)':\n\(result!)\n")
+                                print("\nResponse from '\(remoteApi)':\n\(result!)\n")
+                                
+                                // Transform the json response into a list of DatabaseRecord and count the results
                                 let json = result as! [DatabaseRecord]
                                 
-                                // Si la respuesta recibida no contiene elementos,
-                                // mostrar un aviso y volver al listado de noticias
                                 if json.count == 0 {
                                     
                                     Utils.showCloseControllerDialog(who: self, title: "Error", message: "This article is not available anymore, please try refreshing the list.")
                                     return
                                 }
                                 
-                                // La respuesta debe contener 1 elemento,
-                                // lo guardamos y mostramos su información en la vista
                                 self.currentNews = json.first
                                 
                                 DispatchQueue.main.async    {
@@ -128,8 +116,7 @@ class ReaderNewsDetailViewController: UIViewController {
     }
     
     
-    // Intenta actualizar la vista con la info. del modelo
-    // (solo debe invocarse después de haber llamado a loadNewsDetail() )
+    // Updates the view with the data from the model
     func syncViewFromModel() {
         
         let titleString, authorString, imageName, content: String?
@@ -138,11 +125,10 @@ class ReaderNewsDetailViewController: UIViewController {
         let viewCount: Int?
         var newsLocation: CLLocation? = nil
         
+        // Validate the data sent by the server
         do {
-            // Extraer los datos del JSON enviado por el servidor
             guard let thisNews = currentNews   else { throw JsonError.nilJSONObject }
             
-            // Campos que obligatoriamente deben haberse recibido
             titleString = thisNews["title"] as? String
             authorString = thisNews["writer"] as? String
             newsDate = thisNews["date"] as? NSDate
@@ -159,19 +145,19 @@ class ReaderNewsDetailViewController: UIViewController {
             if hasImage == nil      { throw JsonError.missingJSONField }
             if imageName == nil     { throw JsonError.missingJSONField }
             
-            // Campos opcionales
+            // Optional fields
             let lat = thisNews["latitude"] as? Double
             let long = thisNews["longitude"] as? Double
             
             if lat != nil && long != nil {  newsLocation = CLLocation(latitude: lat!, longitude: long!) }
         }
         catch {
-            print("\nError al extraer la información del JSON recibido\n")
+            print("\nERROR The Json response sent by the server is nor valid\n")
             Utils.showCloseControllerDialog(who: self, title: "Error", message: "Incorrect server response, please try again.")
             return
         }
         
-        // Actualizar las vistas (de forma síncrona)
+        // Update the views
         titleLabel.text = titleString
         authorLabel.text = "by " + authorString!
         dateLabel.text = Utils.dateToString(newsDate!)
@@ -184,11 +170,11 @@ class ReaderNewsDetailViewController: UIViewController {
         else                    {   locationLabel.text = "(Unknown location)"   }
         
         
-        // Llegados a este punto, ya podemos hacer visible la vista
+        // Now we can make the views visible
         Utils.changeSubviewsVisibility(ofView: mainView, hide: false)
         
         
-        // Actualizar las vístas asíncronas (ubicación e imágen)
+        // Update the article address and the article image asynchronously
         if newsLocation != nil {
             
             Utils.asyncReverseGeolocation(location: newsLocation!) { (address: String?) in

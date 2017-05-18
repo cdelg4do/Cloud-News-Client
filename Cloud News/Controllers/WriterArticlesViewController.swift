@@ -5,8 +5,8 @@
 //  Created by Carlos Delgado on 30/10/16.
 //  Copyright © 2016 cdelg4do. All rights reserved.
 //
-//  Este controlador se encarga de mostrar los listados de artículos publicados, enviados o borradores del usuario.
-//  Desde este controlador se realizan los inicios y cierres de sesión en Facebook.
+//  This controller is in charge of showing the list of articles (published, submitted or draft) written by the user.
+//  Facebook login and logout are performed from this controller.
 
 
 import UIKit
@@ -14,18 +14,27 @@ import UIKit
 
 class WriterArticlesViewController: UIViewController {
     
-    // MARK: Propiedades de la clase
-    
-    var appClient: MSClient                     // Cliente de Azure Mobile
-    var articleList: [DatabaseRecord]? = []     // Lista de artículos a mostrar en la tabla
-    var thumbsCache = [String:UIImage]()        // Caché de miniaturas
-    
-    var currentArticleStatus: ArticleStatus = ArticleStatus.draft   // Estado de los artículos que se muestran (por defecto: borradores)
-    
-    var sessionInfo: SessionInfo?               // Información sobre la sesión actual del usuario
+    var appClient: MSClient                     // Azure Mobile client
+    var articleList: [DatabaseRecord]? = []     // List of articles to show in the table
+    var thumbsCache = [String:UIImage]()        // Thumbnails cache
+    var sessionInfo: SessionInfo?               // Info about the current user session
+    var currentArticleStatus: ArticleStatus = ArticleStatus.draft   // Table will show articles in this status (default: draft)
     
     
-    // MARK: Inicialización de la clase
+    //MARK: UI elements
+    
+    let indicator = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.gray)  // Table activity indicator
+    let emptyLabel = UILabel()  // Label to show in case the table is empty
+    
+    var refreshControl: UIRefreshControl?
+    
+    @IBOutlet weak var tableView: UITableView!
+    @IBOutlet weak var btnDraft: UIBarButtonItem!
+    @IBOutlet weak var btnSubmitted: UIBarButtonItem!
+    @IBOutlet weak var btnPublished: UIBarButtonItem!
+    
+    
+    //MARK: Initializers
     
     init(client: MSClient) {
         
@@ -39,30 +48,17 @@ class WriterArticlesViewController: UIViewController {
     }
     
     
-    // MARK: Elementos de la interfaz
-    
-    let indicator = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.gray)  // Indicador de actividad de la tabla
-    let emptyLabel = UILabel()  // Etiqueta para mostrar, en caso de que no haya datos en la tabla
-    
-    var refreshControl: UIRefreshControl?
-    
-    @IBOutlet weak var tableView: UITableView!
-    @IBOutlet weak var btnDraft: UIBarButtonItem!
-    @IBOutlet weak var btnSubmitted: UIBarButtonItem!
-    @IBOutlet weak var btnPublished: UIBarButtonItem!
-    
-    
-    // MARK: Ciclo de vida del controlador
+    //MARK: controller lifecycle events
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         setupUI()
         
-        // Si hay una sesión activa, se cargan los artículos en la tabla
-        // Si no, primero intentar iniciar sesión con Facebook y después cargar los artículos
+        // If there is an active session, load the articles
+        // If not, first try to log in with Facebook credentials and then load the articles
         if let _ = appClient.currentUser    {   loadArticles(originIsPullRefresh: false) }
-        else                                {   loginWithFacebookThenLoadNews()   }
+        else                                {   loginWithFacebookThenLoadArticles()   }
     }
     
     override func didReceiveMemoryWarning() {
@@ -72,52 +68,51 @@ class WriterArticlesViewController: UIViewController {
     }
     
     
-    // MARK: Acciones a realizar al pulsar los botones de la toolbar inferior
+    //MARK: Actions from the UI elements
     
-    // Mostrar los borradores del usuario
+    // 'Draft' button -> load the user's drafts
     @IBAction func btnDraftAction(_ sender: AnyObject) {
         currentArticleStatus = .draft
         loadArticles(originIsPullRefresh: false)
     }
     
-    // Mostrar los artículos enviados del usuario
+    // 'Submitted' button -> load the user's submitted articles
     @IBAction func btnSubmittedAction(_ sender: AnyObject) {
         currentArticleStatus = .submitted
         loadArticles(originIsPullRefresh: false)
     }
     
-    // Mostrar los artículos publicados del usuario
+    // 'Published' button -> load the user's published articles
     @IBAction func btnPublishedAction(_ sender: AnyObject) {
         currentArticleStatus = .published
         loadArticles(originIsPullRefresh: false)
     }
-    
 }
 
 
-// MARK: Implementación de los protocolos UITableViewDataSource y TableViewDelegate
+// MARK: class extensions
 
+// Implementation of the TableViewDataSource protocol
 extension WriterArticlesViewController: UITableViewDataSource {
     
-    // Número de secciones: 1 (0 si no hay datos que mostrar)
+    // Number of sections: 1 (0 if no data to show)
     func numberOfSections(in tableView: UITableView) -> Int {
         
         if (articleList?.isEmpty)!  {   return 0    }
         else                        {   return 1    }
     }
     
-    // Número de filas en una sección: tantas como noticias publicadas (0 si no hay datos que mostrar)
+    // Number of rows in a section: as many as articles retrieved (0 if no data to show)
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
         if (articleList?.isEmpty)!  {   return 0                    }
         else                        {   return (articleList?.count)!   }
     }
     
-    // Configuración de las celdas de la tabla
-    // (se muestra el título del artículo, el autor y una miniatura de la imagen)
+    // Setup of table cells
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        // Obtener los datos del artículo correspondiente a la celda
+        // Get the news data for the given position
         let article = articleList?[indexPath.row]
         
         let articleId = article?["id"] as! String?
@@ -130,35 +125,35 @@ extension WriterArticlesViewController: UITableViewDataSource {
         let dateString = Utils.dateToString(articleDate!)
         var detailLabelText: String
         
+        // Depending on the article status, the cell detail will show different information
         switch (currentArticleStatus) {
             
-            case .published:    detailLabelText = "\(articleVisits!) views since \(dateString)"
+            case .published:    detailLabelText = "\(articleVisits!) views since \(dateString)" // view counter since article was published
                                 break
             
-            case .submitted:    detailLabelText = "Submitted on \(dateString)"
+            case .submitted:    detailLabelText = "Submitted on \(dateString)"      // date the article was submitted
                                 break
         
-            case .draft:        detailLabelText = "Last updated on \(dateString)"
+            case .draft:        detailLabelText = "Last updated on \(dateString)"   // date the article was updated
                                 break
         }
         
-        
-        // Obtención de la celda correspondiente al elemento
+        // Get the cell for this element
         let cellId = "articleCell"
-        var cell = tableView.dequeueReusableCell(withIdentifier: cellId)
         
+        var cell = tableView.dequeueReusableCell(withIdentifier: cellId)
         if cell == nil {
             cell = UITableViewCell(style: .subtitle, reuseIdentifier: cellId)
         }
         
-        // Configuración de la vista (título de la noticia, visitas y fecha)
+        // View setup (title, detail info and default image)
         cell?.textLabel?.text = articleTitle!
         cell?.detailTextLabel?.text = detailLabelText
         
         cell?.imageView?.contentMode = .scaleAspectFit
         cell?.imageView?.image = UIImage(named: "news_placeholder.png")!
         
-        // Si el artículo tiene una imagen asociada, mostrarla (si no está cacheada, se descarga)
+        // If there is an image associated to this article, show its thumbnai (look it up in the cache first, then download it)
         if articleHasImage! {
             
             if let cachedImage = thumbsCache[articleId!] {
@@ -169,10 +164,10 @@ extension WriterArticlesViewController: UITableViewDataSource {
                 
                 Utils.downloadBlobImage(thumbnailName, fromContainer: Backend.newsImageContainerName, activityIndicator: nil) { (image: UIImage?) in
                     
-                    // Si se descargó la imagen remota, cachearla y actualizar la vista (en la cola principal)
                     if image != nil {
                         
-                        self.thumbsCache[articleId!] = image!
+                        self.thumbsCache[articleId!] = image!   // store the thumbnail image in the cache, for future use
+                        
                         DispatchQueue.main.async {
                             cell?.imageView?.image = image!
                         }
@@ -183,27 +178,25 @@ extension WriterArticlesViewController: UITableViewDataSource {
         
         return cell!
     }
-
 }
 
+// Implementation of the TableViewDelegate protocol
 extension WriterArticlesViewController: UITableViewDelegate {
     
-    // Acción al seleccionar una celda de la tabla
+    // What to do when a cell is selected -> go to the article detail view
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
         let selectedNews = articleList?[indexPath.row]
         let newsId = selectedNews?["id"] as! String?
         
-        // Si estamos viendo un artículo entregado o ya publicado,
-        // se muestra el controlador de lectura (ReaderNewsDetailViewController)
-        // usando una api con autenticación para cargar los detalles
+        // If the article is already submitted or published, use the read-only detail controller (ReaderNewsDetailViewController)
         if currentArticleStatus == .published || currentArticleStatus == .submitted {
             
             let detailVC = ReaderNewsDetailViewController(id: newsId!, anonymous: false, client: appClient)
             navigationController?.pushViewController(detailVC, animated: true)
         }
 
-        // Si es un borrador, se muestra el controlador de edición (ArticleEditorViewController)
+        // If the article is a draft, use the editable detail controller (ArticleEditorViewController)
         else {
          
             let detailVC = ArticleEditorViewController(id: newsId!, client: appClient, session: sessionInfo!)
@@ -211,32 +204,29 @@ extension WriterArticlesViewController: UITableViewDelegate {
         }
 
     }
-
 }
 
 
-// MARK: Funciones auxiliares
+// MARK: Auxiliary functions
 
 extension WriterArticlesViewController {
     
-    
-    // Inicio de sesión con Facebook y carga de datos
-    
-    func loginWithFacebookThenLoadNews() {
+    // Login with Facebook credentials. If the login is successful, will attempt to load the articles
+    func loginWithFacebookThenLoadArticles() {
         
-        print("\nSolicitando inicio de sesión en Facebook...\n")
+        print("\nLogin with Facebook credentials...\n")
         
         appClient.login(withProvider: "facebook", parameters: nil, controller: self, animated: true) { (user, error) in
             
             if let _ = error {
-                print("\nFallo al iniciar sesión en Facebook:\n\(error)\n")
+                print("\nERROR: Unable to login into Facebook:\n\(error)\n")
                 Utils.showInfoDialog(who: self, title: "Login Failure", message: "Unable to login into Facebook.")
                 return
             }
             
-            // Si se inició sesión correctamente, obtener los datos del usuario logueado (nombre, etc)
-            print("\nInicio de sesión correcto en Facebook con el usuario:\n\((user?.userId)!)\n")
+            print("\nSuccessful Facebook login with user id:\n\((user?.userId)!)\n")
             
+            // Get the data from the logged user (name, etc)
             self.appClient.invokeAPI(Backend.sessionInfoApiName,
                                      body: nil,
                                      httpMethod: "GET",
@@ -245,41 +235,40 @@ extension WriterArticlesViewController {
                                      completion: { (result, response, error) in
                                         
                                         if let _ = error {
-                                            print("\nFallo al invocar la api '\(Backend.sessionInfoApiName)':\n\(error)\n")
-                                            Utils.showInfoDialog(who: self, title: "Error", message: "Unable to identify facebook user.")
+                                            print("\nERROR: failed request to '\(Backend.sessionInfoApiName)':\n\(error)\n")
+                                            Utils.showInfoDialog(who: self, title: "Error", message: "Failed to identify facebook user.")
                                             return
                                         }
                                         
-                                        // Almacenamos la información del usuario
-                                        print("\nResultado de la invocación a '\(Backend.sessionInfoApiName)':\n\(result!)\n")
+                                        print("\nResponse from '\(Backend.sessionInfoApiName)':\n\(result!)\n")
                                         
+                                        // Parse and save the retrieved user info
                                         let json = result as! JsonElement
                                         self.sessionInfo = SessionInfo.validate(json)
                                         
                                         if self.sessionInfo == nil {
-                                            print("\nRespuesta incorrecta desde '\(Backend.sessionInfoApiName)':\n\(result)\n")
+                                            print("\nERROR: invalid Json data retrieved from '\(Backend.sessionInfoApiName)':\n\(result)\n")
                                             Utils.showInfoDialog(who: self, title: "Error", message: "Unable to identify facebook user.")
                                             return
                                         }
                                         
-                                        // Actualizar la vista con los datos del usuario (en la cola principal)
+                                        // Update the view with the user info
                                         self.setupUserUIElements()
                                         
-                                        // Por último, solicitamos del servidor los artículos del usuario y los cargamos en la tabla
+                                        // Now we can ask the server for the user's articles
                                         self.loadArticles(originIsPullRefresh: false)
             })
         }
     }
     
     
-    // Obtener las noticias del servidor y actualizar la vista
-    
+    // Get the user's articles and show them
     func loadArticles(originIsPullRefresh: Bool) {
         
-        // Lo primero, comprobar que haya una sesión activa
+        // First, make sure there is an active session
         if appClient.currentUser == nil {
             
-            print("\nIntento de refrescar la tabla sin tener una sesión activa.\n")
+            print("\nERROR: unable to refresh table (no active session found).\n")
             Utils.showInfoDialog(who: self, title: "Not logged in", message: "Please use the Log in button at the navigation bar first.")
             
             self.stopAllActivityIndicators()
@@ -287,13 +276,13 @@ extension WriterArticlesViewController {
         }
         
         
-        // Si no estamos haciendo un pull refresh, mostramos el activity indicator de la tabla
+        // If the method was not invoked by a pull refresh, show the table activity indicator
         if !originIsPullRefresh {
             Utils.switchActivityIndicator(indicator, show: true)
         }
         
         
-        // Invocar a la API remota que devuelve todos los artículos del tipo actual
+        // Send a request to retrieve the articles of the current type
         
         appClient.invokeAPI(Backend.myArticlesApiName,
                             body: nil,
@@ -302,22 +291,21 @@ extension WriterArticlesViewController {
                             headers: nil,
                             completion: { (result, response, error) in
                                 
-                                // Vaciar la lista de noticias, antes de añadir los nuevos datos
+                                // Empty the current article list
                                 self.articleList?.removeAll()
                                 
                                 if let _ = error {
-                                    print("\nFallo al invocar la api '\(Backend.myArticlesApiName)':\n\(error)\n")
+                                    print("\nERROR: failed request to '\(Backend.myArticlesApiName)':\n\(error)\n")
                                     Utils.showInfoDialog(who: self, title: "Error", message: "Unable to load your " + self.currentArticleStatus.rawValue + " articles.")
                                     
                                     self.updateViewFromModel()
                                     return
                                 }
                                 
-                                // Si hemos llegado hasta aquí, es que la petición se realizó correctamente
-                                print("\nResultado de la invocación a '\(Backend.myArticlesApiName)':\n\(result!)\n")
+                                print("\nResponse from '\(Backend.myArticlesApiName)':\n\(result!)\n")
                                 
-                                // Convertir el JSON recibido en una lista de DatabaseRecord y añadir al modelo
-                                // solo los registros correctos: (deben incluir: id, title, hasImage, imageName, visits, date)
+                                // Transform the json response into a list of DatabaseRecord
+                                // and add to the model only those valid records (with id, title, writer, image, visit counter and data)
                                 let json = result as! [DatabaseRecord]
                                 
                                 for article in json {
@@ -329,22 +317,21 @@ extension WriterArticlesViewController {
                                         || article["visits"] == nil
                                         || article["date"] == nil {
                                         
-                                        print("\nDescartado un elemento del JSON por campos incorrectos/ausentes\n")
+                                        print("\nA Json element was discarded (missing fields)\n")
                                     }
                                     else {
                                         self.articleList?.append(article)
                                     }
                                 }
                                 
-                                // Actualizar la vista, en la cola principal
+                                // Update the view, in the main queue
                                 self.updateViewFromModel()
         })
     }
     
     
-    // Realiza la carga de noticias y actualiza la vista, eliminando primero la caché de imágenes
-    // (para ejecutar cuando el usuario haga un pull refresh)
-    
+    // Launches the whole process of removing the image cache, downloading the articles and updating the view
+    // (to be invoked when the user starts a pull refresh)
     func fullLoadArticles() {
         
         thumbsCache.removeAll()
@@ -352,35 +339,32 @@ extension WriterArticlesViewController {
     }
     
     
-    // Usar esta función para mostrar algún dato del usuario después de iniciar sesión (nombre, etc)
-    // Se ejecuta siempre en la cola principal
-    
+    // Use this function to show some user data on screen, after a successful login (name, etc)
     func setupUserUIElements() {
         
         DispatchQueue.main.async {
             
             Utils.showInfoDialog(who: self, title: "Log in", message: "You are now connected as \((self.sessionInfo?.fullName)!). Enjoy!")
             
-            // Otros ajustes
+            // Additional setup
             // ...
         }
     }
     
     
-    // Configuración inicial de los elementos de la UI de este controlador
-    
+    // Initial setup of the UI elements
     func setupUI() {
         
-        // Añadir botones de sesión y de crear nuevo artículo
+        // Add buttons to login/logout and to create new article to the navigation bar
         addNavigationButtons()
         
-        // Configuración de la etiqueta que se mostrará cuando la tabla esté vacía
+        // Label to show in case the table is empty
         emptyLabel.textColor = UIColor.gray
         emptyLabel.numberOfLines = 0
         emptyLabel.textAlignment = NSTextAlignment.center
         emptyLabel.sizeToFit()
         
-        // RefreshControl para refrescar la tabla tirando de ella hacia abajo (pull refresh)
+        // RefreshControl to refresh the table by a pull refresh
         refreshControl = UIRefreshControl()
         refreshControl?.backgroundColor = UIColor.clear
         refreshControl?.tintColor = UIColor.black
@@ -391,14 +375,14 @@ extension WriterArticlesViewController {
         tableView.delegate = self
 
         self.tableView.separatorStyle = .none
-        self.tableView.backgroundView = indicator   // ActivityIndicator que se mostrará durante la carga de la tabla
-        title = "My " + currentArticleStatus.rawValue + " articles"   // Título para mostrar
+        
+        self.tableView.backgroundView = indicator                       // ActivityIndicator to show while the table is loading
+        title = "My " + currentArticleStatus.rawValue + " articles"     // Title to show
     }
     
     
-    // Actualizar la vista con los datos del modelo local, en la cola principal
-    // (detiene los indicadores de actividad, muestra el título, las celdas y el mensaje de tabla vacía, si es necesario)
-    
+    // Updates the view with data from the model, in the main queue
+    // (stops all activity indicators, shows the title and the cells, and the empty label if needed)
     func updateViewFromModel() {
         
         DispatchQueue.main.async {
@@ -410,9 +394,8 @@ extension WriterArticlesViewController {
     }
     
     
-    // Detiene y oculta todos los indicadores de actividad de la tabla
-    // (tanto el estándar como el del pull refresh)
-    
+    // Stops and hides all activity indicators in the table
+    // (both the standard indicator and the pull refresh indicator)
     func stopAllActivityIndicators() {
         
         Utils.stopTableRefreshing(refreshControl)
@@ -420,9 +403,8 @@ extension WriterArticlesViewController {
     }
     
     
-    // Si la tabla está vacía, muestra un aviso al usuario
-    // En caso contrario, solo asigna el activity indicator como background de la tabla
-    
+    // If the table is empty, shows the empty label on screen.
+    // Otherwise, just assigns the activity indicator as the table background.
     func showEmptyLabelIfNeeded() {
         
         DispatchQueue.main.async {
@@ -442,8 +424,7 @@ extension WriterArticlesViewController {
     }
     
     
-    // Creación de los botones de crear un nuevo articulo y de iniciar/finalizar sesión como botones derechos del navigation controller
-    
+    // Create buttons (login/logout and new article) to the right in the navigation controller
     func addNavigationButtons() {
         
         let btn1 = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(newArticleAction))
@@ -454,8 +435,7 @@ extension WriterArticlesViewController {
     }
     
     
-    // Acción al pulsar el botón de nuevo artículo
-    
+    // What to do when the user clicks on the New article button
     func newArticleAction() {
         
         let editVC = ArticleEditorViewController(id: nil, client: appClient, session: sessionInfo!)
@@ -463,25 +443,25 @@ extension WriterArticlesViewController {
     }
     
     
-    // Acción al pulsar el botón de sesión
-    
+    // What to do when the user clicks on the Session button
     func toggleSessionAction() {
         
-        // Si ya había una sesión iniciada, se cierra
+        // If there was already a session, close it
         if let _ = appClient.currentUser {
             
-            print("\nFinalizando la sesión de Facebook actual...\n")
+            print("\nClosing the current Facebook session...\n")
             
             appClient.logout() { error in
                 
                 if let _ = error {
-                    print("\nFallo al cerrar la sesión de Facebook activa:\n\(error)\n")
+                    print("\nERROR: failed to finish the current Facebook session:\n\(error)\n")
                     Utils.showInfoDialog(who: self, title: "Log out Failure", message: "There was an error while trying to log out.")
                     return
                 }
                 
-                // El metodo anterior cierra la sesión, pero no elimina las cookies
-                print("\nCOOKIES ANTES:\n")
+                // Apart from closing the session, it is necessary to remove cookies (otherwise, when clicking the session button again
+                // the login dialog will not show, and it will attempt to login with the same last Facebook credentials)
+                print("\nCookies about to be removed:\n")
                 for value in HTTPCookieStorage.shared.cookies! {
                     print(value)
                 }
@@ -491,25 +471,19 @@ extension WriterArticlesViewController {
                 }
                 
                 
-                print("\nSesión finalizada correctamente!\n")
+                print("\nCurrent session has been closed!\n")
                 Utils.showInfoDialog(who: self, title: "Log out", message: "See you soon, \((self.sessionInfo?.firstName)!)! Press the button again to Log in.")
                 
-                // Eliminar los datos del usuario descargados y vaciar la tabla de artículos
+                // Remove the session info and empty the article list
                 self.sessionInfo = nil
                 self.articleList?.removeAll()
                 self.updateViewFromModel()
             }
         }
         
-        // Si no, se intenta iniciar sesión en Facebook
+        // If there was not an active session, login into Facebook
         else {
-            loginWithFacebookThenLoadNews()
+            loginWithFacebookThenLoadArticles()
         }
-        
     }
 }
-
-
-
-
-
