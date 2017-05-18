@@ -473,7 +473,7 @@ extension ArticleEditorViewController {
     }
     
     
-    // Store a given UIImage as Jpeg (and its thumbnail) in the remote Azure Storage container
+    // Stores a given UIImage (and its thumbnail) as Jpeg in the remote Azure Storage container
     func uploadImage(_ image: UIImage, withName imageName: String, completion: @escaping (Bool) -> () ) {
         
         // First, attempt to store the 'big' picture
@@ -482,47 +482,45 @@ extension ArticleEditorViewController {
         Utils.uploadBlobImage(image, blobName: imageFileName, toContainer: Backend.newsImageContainerName, activityIndicator: nil) { (success1: Bool) in
             
             if !success1 {
-                print("\nFallo al intentar subir la imagen '\(imageFileName)' al contenedor remoto\n")
+                print("\nERROR: failed to upload image '\(imageFileName)' to the storage container\n")
                 completion(false)
                 return
             }
             
-            print("\nSe ha subido correctamente la imagen '\(imageFileName)' al contenedor remoto\n")
+            print("\nImage '\(imageFileName)' successfully uploaded to the storage container\n")
             
-            // Después, se genera la miniatura y se intenta guardar
+            // Second, generate the thumbnail and attempt to store it
             let thumbnail = Utils.resizeImage(image, toSize: CGSize(width: 40, height: 40))
             let thumbFileName = imageName + "_thumb.jpg"
             
             Utils.uploadBlobImage(thumbnail, blobName: thumbFileName, toContainer: Backend.newsImageContainerName, activityIndicator:nil) { (success2: Bool) in
                 
                 if !success2 {
-                    print("\nFallo al intentar subir la miniatura '\(thumbFileName)' al contenedor remoto\n")
+                    print("\nERROR: failed to upload thumbnail '\(thumbFileName)' to the storage container\n")
                     completion(false)
                     return
                 }
                 
-                print("\nSe ha subido correctamente la miniatura '\(thumbFileName)' al contenedor remoto\n")
+                print("\nThumbnail '\(thumbFileName)' successfully uploaded to the storage container\n")
                 completion(true)
             }
         }
     }
     
     
-    // Función que intenta eliminar la imagen de un borrador y su miniatura del contenedor remoto en que se encuentran
-    // (si logra eliminar las dos, pasará true en la clausura, o false en caso contrario)
+    // Deletes an image file (and its thumbnail) stored in the storage container
     func deleteRemoteImage(withName imageName: String, completion: @escaping (Bool) -> () ) {
         
-        // Nombres de fichero de la imagen y de la miniatura a eliminar
         let name = imageName + ".jpg"
         let thumb = imageName + "_thumb.jpg"
         
         Utils.removeBlob(withName: name, fromContainer: Backend.newsImageContainerName) { (success1: Bool) in
-            if success1 {   print("\nImagen '\(name)' eliminada del contenedor remoto!\n")                      }
-            else        {   print("\nFallo al intentar eliminar la imagen '\(name)' del contenedor remoto\n")   }
+            if success1 {   print("\nImage '\(name)' successfully removed from the storage container!\n")                      }
+            else        {   print("\nERROR: Failed to remove image '\(name)' from the storage container\n")   }
             
             Utils.removeBlob(withName: thumb, fromContainer: Backend.newsImageContainerName) { (success2: Bool) in
-                if success2 {   print("\nMiniatura '\(thumb)' eliminada del contenedor remoto!\n")                      }
-                else        {   print("\nFallo al intentar eliminar la miniatura '\(thumb)' del contenedor remoto\n")   }
+                if success2 {   print("\nThumbnail '\(thumb)' successfully removed from the storage container!\n")                      }
+                else        {   print("\nERROR: Failed to remove thumbnail '\(thumb)' from the storage container\n")   }
                 
                 completion(success1 && success2)
             }
@@ -530,8 +528,8 @@ extension ArticleEditorViewController {
     }
     
     
-    // Función que deshabilita las vistas de la pantalla tras un submit exitoso
-    // (para evitar que el borrador se pueda modificar)
+    // Disables all views in the controller
+    // (to prevent further editing once the draft has been submitted)
     func disableAllElements() {
         
         DispatchQueue.main.async {
@@ -546,15 +544,14 @@ extension ArticleEditorViewController {
     }
     
     
-    // Función que actualiza la vista con las fechas
-    // de creación y modificación del modelo local
-    // (para usar después de una operación de guardado del borrador)
+    // Updates all draft dates, created & updated, on screen with the data from the model
+    // (to invoke when the server returns the registry after saving the draft)
     func updateViewDatesOnly() {
         
         let created, updated: NSDate?
         
+        // Make sure the local model is not nil and includes all the needed dates
         do {
-            // Comprobar que el modelo local no sea nil
             guard let draft = draftData else { throw JsonError.nilJSONObject }
             
             created = draft["createdAt"] as? NSDate
@@ -562,20 +559,17 @@ extension ArticleEditorViewController {
             
             if created == nil       { throw JsonError.missingJSONField }
             if updated == nil       { throw JsonError.missingJSONField }
-            
         }
         catch {
-            print("\nError al extraer las fechas de creación/modificación del modelo local\n")
+            print("\nERROR: failed to obtain cration/update dates from the local model\n")
             Utils.showCloseControllerDialog(who: self, title: "Something went wrong", message: "Unable to refresh the view with the latest data. Please get back and try again :'(")
             return
         }
         
-        // Actualizar las vistas (de forma síncrona)
+        // Update the dates on screen
         DispatchQueue.main.async {
             self.labelCreated.text = "First created: " + Utils.dateToString(created!)
             self.labelUpdated.text = "Last updated: " + Utils.dateToString(updated!)
         }
     }
 }
-
-

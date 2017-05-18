@@ -162,7 +162,7 @@ class ReaderTableViewController: UITableViewController {
     // Get the news from the server and update the view
     func loadNews(originIsPullRefresh: Bool) {
         
-        // If the action was triggered from a pull refresh, show the activity indicator
+        // If the action was NOT triggered from a pull refresh, show the activity indicator
         if !originIsPullRefresh {
             Utils.switchActivityIndicator(indicator, show: true)
         }
