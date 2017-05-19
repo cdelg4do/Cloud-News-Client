@@ -88,7 +88,7 @@ class ArticleEditorViewController: UIViewController {
     @IBAction func galleryAction(_ sender: AnyObject) {
         
         let picker = UIImagePickerController()
-        picker.sourceType = .photoLibrary
+        picker.sourceType = .photoLibrary   // (requires to add in info.plist a value for "Privacy - Photo Library Usage Description")
         picker.delegate = self
         
         // Show the image selector in modal way
