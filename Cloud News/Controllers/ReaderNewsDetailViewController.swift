@@ -159,9 +159,11 @@ class ReaderNewsDetailViewController: UIViewController {
         
         // Update the views
         titleLabel.text = titleString
-        authorLabel.text = "by " + authorString!
         dateLabel.text = Utils.dateToString(newsDate!)
         newsText.text = content
+        
+        authorLabel.text = "<Resolving author name...>"   // will be resolved later
+        authorLabel.alpha = 0;
         
         if useAnonymousApi  {   viewsLabel.text = "\(viewCount!+1) views"   }
         else                {   viewsLabel.text = "\(viewCount!) views"     }
@@ -174,13 +176,24 @@ class ReaderNewsDetailViewController: UIViewController {
         Utils.changeSubviewsVisibility(ofView: mainView, hide: false)
         
         
-        // Update the article address and the article image asynchronously
+        // Views to be updated asynchronously: author name, address and image
+        
+        Utils.asyncGetFacebookUserInfo(userId: authorString!, withClient: appClient) { (userInfo: UserInfo?) in
+            
+            if userInfo != nil {
+                let authorName = userInfo!.fullName
+                self.authorLabel.text = "by " + authorName
+                self.authorLabel.alpha = 1;
+            }
+        }
+        
+        
         if newsLocation != nil {
             
             Utils.asyncReverseGeolocation(location: newsLocation!) { (address: String?) in
                 
                 if address != nil { self.locationLabel.text = address   }
-                else              { self.locationLabel.text = "(\(newsLocation?.coordinate.latitude),\(newsLocation?.coordinate.longitude))>"   }
+                else              { self.locationLabel.text = "(Unknown location)"   }
             }
         }
         
@@ -199,6 +212,12 @@ class ReaderNewsDetailViewController: UIViewController {
                 
                 Utils.switchActivityIndicator(self.imageIndicator, show: false)
             }
+        }
+        
+        // If there is no image to show, hide and resize it to 1x1 (to save screen space)
+        else {
+            self.newsImage.isHidden = true
+            self.newsImage.image = Utils.resizeImage(fromImage: UIImage(named: "news_placeholder.png")!, toFixedWidth: 1, toFixedHeight: 1)
         }
     }
 

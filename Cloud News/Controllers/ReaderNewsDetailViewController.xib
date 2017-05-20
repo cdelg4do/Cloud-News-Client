@@ -32,7 +32,7 @@
                             <subviews>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="title label" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="OpF-Y4-8cF">
                                     <constraints>
-                                        <constraint firstAttribute="height" relation="lessThanOrEqual" constant="50" id="MH3-ai-kAc"/>
+                                        <constraint firstAttribute="height" relation="lessThanOrEqual" constant="100" id="MH3-ai-kAc"/>
                                         <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="24" id="nfb-4y-ef6"/>
                                     </constraints>
                                     <fontDescription key="fontDescription" type="system" pointSize="22"/>
@@ -130,7 +130,7 @@
                 <constraint firstAttribute="trailing" secondItem="lAV-kR-SJj" secondAttribute="trailing" constant="8" id="rFa-Cr-4lN"/>
                 <constraint firstItem="lAV-kR-SJj" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" constant="8" id="va6-AQ-bb1"/>
             </constraints>
-            <point key="canvasLocation" x="-3205" y="-596"/>
+            <point key="canvasLocation" x="-3459" y="-597"/>
         </view>
     </objects>
     <resources>

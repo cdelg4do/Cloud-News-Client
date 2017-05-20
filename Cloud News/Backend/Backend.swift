@@ -43,7 +43,7 @@ class Backend {
     
     // Azure Storage account credentials
     static let storageAccountName: String = "cloudnewsstorage"
-    static let storageKeyString: String = "vvRR0VjNHq9h74OCkqS1GRhdOSsBxF10yL7JPeqib92WzU5O9O9ciBope8mSssf8Yuq/uIOQsPVrfYCcGxkLWg=="
+    static let storageKeyString: String = "PUT_ACCESS_KEY_HERE"
     
     // Name of the container for the news images
     static let newsImageContainerName: String = "news-images"

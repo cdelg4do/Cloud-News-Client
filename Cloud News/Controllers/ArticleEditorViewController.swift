@@ -16,7 +16,7 @@ import CoreLocation
 class ArticleEditorViewController: UIViewController {
     
     var appClient: MSClient             // Azure client tied to the mobile app
-    var session: SessionInfo            // Info about the current user session
+    var session: SessionInfo?           // Info about the current user session
     var articleId: String?              // Article Id
     var draftData: [AnyHashable : Any]? // Article data container
     
@@ -36,6 +36,7 @@ class ArticleEditorViewController: UIViewController {
     @IBOutlet weak var labelCreated: UILabel!
     @IBOutlet weak var labelUpdated: UILabel!
     @IBOutlet weak var imageView: UIImageView!
+    @IBOutlet weak var imageIndicator: UIActivityIndicatorView!
     @IBOutlet weak var btnGallery: UIButton!
     @IBOutlet weak var btnClear: UIButton!
     @IBOutlet weak var contents: UITextView!
@@ -45,14 +46,15 @@ class ArticleEditorViewController: UIViewController {
     
     //MARK: Initializers
     
-    init(id: String?, client: MSClient, session: SessionInfo) {
+    init(id: String?, client: MSClient, session: SessionInfo?) {
         
         self.articleId = id
         self.appClient = client
-        self.session = session
         
         self.draftData = nil
         self.hasImageSelected = false
+        
+        self.session = session
         
         super.init(nibName: nil, bundle: nil)
     }
@@ -78,6 +80,25 @@ class ArticleEditorViewController: UIViewController {
         if articleId != nil {
             
             loadExistingDraft()
+        }
+        
+        // If we are editing a new draft, make sure the sessionInfo received from the previous controller is not nil
+        // (we will need some of these data to create the new draft in the remote database)
+        else {
+            
+            if self.session == nil {
+                
+                Utils.asyncGetCurrentSessionInfo(appClient: appClient) { (sessionInfo: SessionInfo?) in
+                    
+                    self.session = sessionInfo
+                    
+                    if sessionInfo == nil {
+                        let dialogTitle = "Session error"
+                        let dialogMsg = "Unable to get data from your current session, please try logging in again."
+                        Utils.showCloseControllerDialog(who: self, title: dialogTitle, message: dialogMsg)
+                    }
+                }
+            }
         }
     }
     
@@ -201,10 +222,9 @@ extension ArticleEditorViewController {
                 return
             }
             
-            print("\nQuery result:\n\(self.draftData!)\n")
-            
             // If the query returned some match (should be one) then take the first row and show its data on screen
             self.draftData = (result?.items?.first)!
+            print("\nQuery result:\n\(self.draftData!)\n")
             
             DispatchQueue.main.async    {
                 self.syncViewFromModel()
@@ -263,7 +283,7 @@ extension ArticleEditorViewController {
         // If there is an image to show, download and show it (asynchronously)
         if hasImage! {
             
-            Utils.downloadBlobImage("\(imageName!).jpg", fromContainer: Backend.newsImageContainerName, activityIndicator: nil) { (image: UIImage?) in
+            Utils.downloadBlobImage("\(imageName!).jpg", fromContainer: Backend.newsImageContainerName, activityIndicator: imageIndicator) { (image: UIImage?) in
                 
                 if image != nil {
                     let resizedImage = Utils.resizeImage(image!, toSize: Utils.screenSize())
@@ -338,7 +358,7 @@ extension ArticleEditorViewController {
             
             result = [ "title": title,
                        "status": ArticleStatus.draft.rawValue,
-                       "writer": self.session.userId,
+                       "writer": (self.session?.userId)!,
                        "latitude": lat!,
                        "longitude": lon!,
                        "visits": 0,

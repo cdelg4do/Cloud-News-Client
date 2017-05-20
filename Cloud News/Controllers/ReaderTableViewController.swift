@@ -92,12 +92,13 @@ class ReaderTableViewController: UITableViewController {
         }
         
         // View setup (title, date and default image)
+        cell?.textLabel?.numberOfLines = 3
+        cell?.textLabel?.lineBreakMode = .byTruncatingTail
         cell?.textLabel?.text = newsTitle!
         cell?.detailTextLabel?.text = "\(Utils.dateToString(newsDate!))"
         
-        cell?.imageView?.contentMode = .scaleAspectFit
-        cell?.imageView?.image = UIImage(named: "news_placeholder.png")!
-        
+        //cell?.imageView?.contentMode = .scaleAspectFit
+        cell?.imageView?.image = Utils.resizeImage(fromImage: UIImage(named: "news_placeholder.png")!, toFixedWidth: 70, toFixedHeight: 70)
         
         // Attempt to get the author name (look it up in the cache first, then from the Facebook Graph API)
         if let cachedName = writersCache[newsId!] {
@@ -135,7 +136,7 @@ class ReaderTableViewController: UITableViewController {
                         self.thumbsCache[newsId!] = image!  // store the thumbnail image in the cache, for future use
                         
                         DispatchQueue.main.async {
-                            cell?.imageView?.image = image!
+                            cell?.imageView?.image = Utils.resizeImage(fromImage: image!, toFixedWidth: 70, toFixedHeight: 70)
                         }
                     }
                 }
@@ -181,7 +182,7 @@ class ReaderTableViewController: UITableViewController {
                             self.newsList?.removeAll()
                             
                             if let _ = error {
-                                print("\nERROR: failed request to '\(Backend.publishedNewsApiName)':\n\(error)\n")
+                                print("\nERROR: failed request to '\(Backend.publishedNewsApiName)':\n\(error!)\n")
                                 Utils.showInfoDialog(who: self, title: "Error", message: "Unable to load the published news.")
                                 
                                 self.updateViewFromModel()
@@ -247,6 +248,8 @@ class ReaderTableViewController: UITableViewController {
         tableView.addSubview(refreshControl!)
         tableView.dataSource = self
         tableView.delegate = self
+        tableView.rowHeight = UITableViewAutomaticDimension
+        tableView.estimatedRowHeight = 100
         
         self.tableView.separatorStyle = .none
         

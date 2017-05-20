@@ -23,6 +23,7 @@ class Utils {
     typealias dataClosure = (Data?) -> ()
     typealias stringClosure = (String?) -> ()
     typealias userClosure = (UserInfo?) -> ()
+    typealias sessionClosure = (SessionInfo?) -> ()
     typealias boolClosure = (Bool) -> ()
     
     
@@ -38,9 +39,11 @@ class Utils {
     
     class func downloadBlobImage(_ blobName: String, fromContainer containerName: String, activityIndicator: UIActivityIndicatorView?, completion: @escaping imageClosure) {
         
+        activityIndicator?.isHidden = false
+        activityIndicator?.startAnimating()
+        
         // Build a link to the blob
         // (credentials > storage account > storage client tied to the account > remote container > image blob)
-        
         var imageBlob: AZSCloudBlockBlob
         
         do {
@@ -60,6 +63,11 @@ class Utils {
         }
         
         imageBlob.downloadToData { (error, data) in
+            
+            DispatchQueue.main.async {
+                activityIndicator?.stopAnimating()
+                activityIndicator?.isHidden = true
+            }
             
             if let _ = error {
                 print("\nERROR: unable to download remote blob:\n\(error!)\n")
@@ -98,6 +106,10 @@ class Utils {
             let imagesContainer: AZSCloudBlobContainer = storageClient.containerReference(fromName: containerName)
             
             imageBlob = imagesContainer.blockBlobReference(fromName: blobName)
+            
+            // Set the content type for the blob
+            // (lets the image show in the browser by its url, in case the container is public)
+            imageBlob.properties.contentType = "image/jpeg"
         }
         catch {
             print("\nERROR: Unable to build the link for the target blob\n")
@@ -188,6 +200,49 @@ class Utils {
                                 completion(userInfo)
         })
     }
+    
+    
+    // Method to request information about the current session from the Facebook Graph API.
+    // If the operation succeeds, passes a SessionInfo object to the trailing closure. Otherwise, passes nil.
+    
+    class func asyncGetCurrentSessionInfo(appClient: MSClient, completion: @escaping sessionClosure) {
+        
+        if appClient.currentUser == nil {
+            
+            print("\nERROR Unable to get session info: no existing session\n")
+            completion(nil)
+            return
+        }
+        
+        appClient.invokeAPI(Backend.sessionInfoApiName,
+                                 body: nil,
+                                 httpMethod: "GET",
+                                 parameters: nil,
+                                 headers: nil,
+                                 completion: { (result, response, error) in
+                                    
+                                    if let _ = error {
+                                        print("\nERROR: failed request to '\(Backend.sessionInfoApiName)':\n\(error)\n")
+                                        completion(nil)
+                                        return
+                                    }
+                                    
+                                    print("\nResponse from '\(Backend.sessionInfoApiName)':\n\(result!)\n")
+                                    
+                                    // Validate the retrieved user info
+                                    let json = result as! JsonElement
+                                    
+                                    let sessionInfo = SessionInfo.validate(json)
+                                    
+                                    if sessionInfo == nil {
+                                        print("\nERROR: invalid Json data retrieved from '\(Backend.sessionInfoApiName)':\n\(result)\n")
+                                        completion(nil)
+                                        return
+                                    }
+                                    
+                                    completion(sessionInfo)
+        })
+    }
  
     
     // Async method to get the address corresponding to some Gps coordinates (given by a CLLocation object)
@@ -253,6 +308,19 @@ class Utils {
         UIGraphicsEndImageContext()
         
         return newImage!
+    }
+    
+    
+    // Resizes a given UIImage to the given dimensions (the original aspect ratio might be lost)
+    
+    class func resizeImage(fromImage image: UIImage, toFixedWidth fixedWidth: Int, toFixedHeight fixedHeight: Int) -> UIImage {
+        
+        let imageSize = CGSize(width: fixedWidth, height: fixedHeight)
+        UIGraphicsBeginImageContext( imageSize )
+        image.draw(in: CGRect(x: 0, y: 0, width: imageSize.width, height: imageSize.height))
+        let newImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return (newImage?.withRenderingMode(.alwaysOriginal))!
     }
     
     

@@ -147,11 +147,13 @@ extension WriterArticlesViewController: UITableViewDataSource {
         }
         
         // View setup (title, detail info and default image)
+        cell?.textLabel?.numberOfLines = 3
+        cell?.textLabel?.lineBreakMode = .byTruncatingTail
         cell?.textLabel?.text = articleTitle!
         cell?.detailTextLabel?.text = detailLabelText
         
-        cell?.imageView?.contentMode = .scaleAspectFit
-        cell?.imageView?.image = UIImage(named: "news_placeholder.png")!
+        //cell?.imageView?.contentMode = .scaleAspectFit
+        cell?.imageView?.image = Utils.resizeImage(fromImage: UIImage(named: "news_placeholder.png")!, toFixedWidth: 70, toFixedHeight: 70)
         
         // If there is an image associated to this article, show its thumbnai (look it up in the cache first, then download it)
         if articleHasImage! {
@@ -169,7 +171,7 @@ extension WriterArticlesViewController: UITableViewDataSource {
                         self.thumbsCache[articleId!] = image!   // store the thumbnail image in the cache, for future use
                         
                         DispatchQueue.main.async {
-                            cell?.imageView?.image = image!
+                            cell?.imageView?.image = Utils.resizeImage(fromImage: image!, toFixedWidth: 70, toFixedHeight: 70)
                         }
                     }
                 }
@@ -199,7 +201,7 @@ extension WriterArticlesViewController: UITableViewDelegate {
         // If the article is a draft, use the editable detail controller (ArticleEditorViewController)
         else {
          
-            let detailVC = ArticleEditorViewController(id: newsId!, client: appClient, session: sessionInfo!)
+            let detailVC = ArticleEditorViewController(id: newsId!, client: appClient, session: sessionInfo)
             navigationController?.pushViewController(detailVC, animated: true)
         }
 
@@ -220,44 +222,29 @@ extension WriterArticlesViewController {
             
             if let _ = error {
                 print("\nERROR: Unable to login into Facebook:\n\(error)\n")
-                Utils.showInfoDialog(who: self, title: "Login Failure", message: "Unable to login into Facebook.")
+                Utils.showCloseControllerDialog(who: self, title: "Login failure", message: "Unable to login with Facebook")
                 return
             }
             
             print("\nSuccessful Facebook login with user id:\n\((user?.userId)!)\n")
             
-            // Get the data from the logged user (name, etc)
-            self.appClient.invokeAPI(Backend.sessionInfoApiName,
-                                     body: nil,
-                                     httpMethod: "GET",
-                                     parameters: nil,
-                                     headers: nil,
-                                     completion: { (result, response, error) in
-                                        
-                                        if let _ = error {
-                                            print("\nERROR: failed request to '\(Backend.sessionInfoApiName)':\n\(error)\n")
-                                            Utils.showInfoDialog(who: self, title: "Error", message: "Failed to identify facebook user.")
-                                            return
-                                        }
-                                        
-                                        print("\nResponse from '\(Backend.sessionInfoApiName)':\n\(result!)\n")
-                                        
-                                        // Parse and save the retrieved user info
-                                        let json = result as! JsonElement
-                                        self.sessionInfo = SessionInfo.validate(json)
-                                        
-                                        if self.sessionInfo == nil {
-                                            print("\nERROR: invalid Json data retrieved from '\(Backend.sessionInfoApiName)':\n\(result)\n")
-                                            Utils.showInfoDialog(who: self, title: "Error", message: "Unable to identify facebook user.")
-                                            return
-                                        }
-                                        
-                                        // Update the view with the user info
-                                        self.setupUserUIElements()
-                                        
-                                        // Now we can ask the server for the user's articles
-                                        self.loadArticles(originIsPullRefresh: false)
-            })
+            
+            Utils.asyncGetCurrentSessionInfo(appClient: self.appClient) { (sessionInfo: SessionInfo?) in
+                
+                if sessionInfo == nil {
+                    let dialogTitle = "Session error"
+                    let dialogMsg = "Unable to get data from your current session, please try logging in again."
+                    Utils.showCloseControllerDialog(who: self, title: dialogTitle, message: dialogMsg)
+                    return
+                }
+                
+                // Save the session info and update the view with it
+                self.sessionInfo = sessionInfo
+                self.setupUserUIElements()
+                
+                // Now we can ask the server for the user's articles
+                self.loadArticles(originIsPullRefresh: false)
+            }
         }
     }
     
@@ -373,6 +360,8 @@ extension WriterArticlesViewController {
         tableView.addSubview(refreshControl!)
         tableView.dataSource = self
         tableView.delegate = self
+        tableView.rowHeight = UITableViewAutomaticDimension
+        tableView.estimatedRowHeight = 100
 
         self.tableView.separatorStyle = .none
         
@@ -390,6 +379,25 @@ extension WriterArticlesViewController {
             self.title = "My " + self.currentArticleStatus.rawValue + " Articles"
             self.tableView.reloadData()
             self.showEmptyLabelIfNeeded()
+            
+            // Depending on the status we are looking for, enable/disable the status buttons
+            if self.currentArticleStatus == .draft {
+                self.btnDraft.isEnabled = false
+                self.btnSubmitted.isEnabled = true
+                self.btnPublished.isEnabled = true
+            }
+            
+            if self.currentArticleStatus == .submitted {
+                self.btnDraft.isEnabled = true
+                self.btnSubmitted.isEnabled = false
+                self.btnPublished.isEnabled = true
+            }
+            
+            if self.currentArticleStatus == .published {
+                self.btnDraft.isEnabled = true
+                self.btnSubmitted.isEnabled = true
+                self.btnPublished.isEnabled = false
+            }
         }
     }
     
@@ -438,7 +446,7 @@ extension WriterArticlesViewController {
     // What to do when the user clicks on the New article button
     func newArticleAction() {
         
-        let editVC = ArticleEditorViewController(id: nil, client: appClient, session: sessionInfo!)
+        let editVC = ArticleEditorViewController(id: nil, client: appClient, session: sessionInfo)
         navigationController?.pushViewController(editVC, animated: true)
     }
     
