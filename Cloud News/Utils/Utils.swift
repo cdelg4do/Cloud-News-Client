@@ -435,5 +435,15 @@ class Utils {
         }
     }
     
+    
+    // This method determines the color to be asigned to a given table row
+    // (will return a different color depending on the row being even or odd)
+    class func colorForTableRow(atIndex index: Int) -> UIColor {
+        
+        let evenColor = UIColor(red: 255.0, green: 255.0, blue: 255.0, alpha: 1.0)
+        let oddColor  = UIColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.05)
+        
+        if index % 2 == 0   {   return evenColor    }
+        else                {   return oddColor     }
+    }
 }
-

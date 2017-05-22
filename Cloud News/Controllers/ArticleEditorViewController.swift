@@ -73,6 +73,9 @@ class ArticleEditorViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        // The keyboard will hide when the user taps anywhere except a text box
+        self.hideKeyboardWhenTappedAround()
+        
         
         btnClear.isEnabled = false
         
@@ -162,6 +165,9 @@ class ArticleEditorViewController: UIViewController {
             return
         }
         
+        let waitDialog = WaitDialog(message: "Submitting draft...")
+        waitDialog.show(onParent: self)
+        
         // Object to update in the database
         var updateItem = self.draftData!
         updateItem["status"] = ArticleStatus.submitted.rawValue
@@ -170,21 +176,25 @@ class ArticleEditorViewController: UIViewController {
         
         appClient.table(withName: Backend.newsTableName).update(updateItem, completion: { (result, error) in
             
-            if let _ = error {
-                print("\nERROR: Failed to submit draft:\n\(error)\n")
-                Utils.showInfoDialog(who: self, title: "Something went wrong", message: "It might happen that a newer draft version exists. Please try going back and loading this draft again.")
-                return
+            waitDialog.hide() {
+                
+                if let _ = error {
+                    
+                    print("\nERROR: Failed to submit draft:\n\(error)\n")
+                    Utils.showInfoDialog(who: self, title: "Something went wrong", message: "It might happen that a newer draft version exists. Please try going back and loading this draft again.")
+                    return
+                }
+                
+                // Update the local model with the updated data returned by the server
+                self.draftData = result!
+                
+                print("\nDraft submitted successfully:\n\(self.draftData!)\n")
+                Utils.showInfoDialog(who: self, title: "Done!", message: "Your article has been submitted. Please allow up to 15 min. until it gets published.")
+                
+                // Update the modified date on screen and disable editing
+                self.updateViewDatesOnly()
+                self.disableAllElements()
             }
-            
-            // Update the local model with the updated data returned by the server
-            self.draftData = result!
-            
-            print("\nERROR: draft submitted successfully:\n\(self.draftData!)\n")
-            Utils.showInfoDialog(who: self, title: "Done!", message: "Your article has been submitted. Please allow up to 15 min. until it gets published.")
-            
-            // Update the modified date on screen and disable editing
-            self.updateViewDatesOnly()
-            self.disableAllElements()
         })
     }
 }
@@ -374,6 +384,9 @@ extension ArticleEditorViewController {
     // Creates a new draft entry in the remote database using the given data
     func saveNewDraft(title: String, text: String, latitude: Double?, longitude: Double?) {
         
+        let waitDialog = WaitDialog(message: "Saving draft...")
+        waitDialog.show(onParent: self)
+        
         // Get the object to insert in the database
         let newItem = buildDatabaseRecord(fromItem: nil,
                                           withTitle: title, withText: text,
@@ -386,8 +399,11 @@ extension ArticleEditorViewController {
         appClient.table(withName: Backend.newsTableName).insert(newItem) { (result, error) in
             
             if let _ = error {
-                print("\nERROR: failed to insert the new draft in the remote database:\n\(error!)\n")
-                Utils.showInfoDialog(who: self, title: "Save failed", message: "Please try again :'(")
+                
+                waitDialog.hide() {
+                    print("\nERROR: failed to insert the new draft in the remote database:\n\(error!)\n")
+                    Utils.showInfoDialog(who: self, title: "Save failed", message: "Please try again :'(")
+                }
                 return
             }
             
@@ -403,19 +419,24 @@ extension ArticleEditorViewController {
                 
                 self.uploadImage(self.imageView.image!, withName: (self.draftData?["imageName"] as! String) )  { (success: Bool) in
                     
-                    if !success {
-                        print("\nERROR: failed to store the draft image'\n")
-                        Utils.showInfoDialog(who: self, title: "Something went wrong", message: "Your new draft has been saved, but the picture could not be stored properly. Please try again :'(")
-                        return
+                    waitDialog.hide() {
+                        
+                        if !success {
+                            print("\nERROR: failed to store the draft image'\n")
+                            Utils.showInfoDialog(who: self, title: "Something went wrong", message: "Your new draft has been saved, but the picture could not be stored properly. Please try again :'(")
+                            return
+                        }
+                        
+                        print("\nThe draft was successfully saved '\(self.articleId!)', including the image!\n")
+                        Utils.showInfoDialog(who: self, title: "Done!", message: "Your draft has been saved :)")
                     }
-                    
-                    print("\nThe draft was successfully saved '\(self.articleId!)', including the image!\n")
-                    Utils.showInfoDialog(who: self, title: "Done!", message: "Your draft has been saved :)")
                 }
             }
             else {
-                print("\nThe draft was successfully saved '\(self.articleId!)'! (no image to save)\n")
-                Utils.showInfoDialog(who: self, title: "Done!", message: "Your draft has been saved :)")
+                waitDialog.hide() {
+                    print("\nThe draft was successfully saved '\(self.articleId!)'! (no image to save)\n")
+                    Utils.showInfoDialog(who: self, title: "Done!", message: "Your draft has been saved :)")
+                }
             }
         }
     }
@@ -423,6 +444,9 @@ extension ArticleEditorViewController {
     
     // Updates the existing draft in the remote database
     func updateExistingDraft(title: String, text: String, latitude: Double?, longitude: Double?) {
+        
+        let waitDialog = WaitDialog(message: "Saving draft...")
+        waitDialog.show(onParent: self)
         
         // Determine if the draft had a previous image that should be removed from the Azure Storage
         let hadImage: Bool = self.draftData?["hasImage"] as! Bool
@@ -437,13 +461,15 @@ extension ArticleEditorViewController {
         
         print("\nEntry to update in the database:\n\(updateItem)\n")
         
-        
         // Update the registry in the database
         appClient.table(withName: Backend.newsTableName).update(updateItem, completion: { (result, error) in
             
             if let _ = error {
-                print("\nERROR: failed to update the draft in the remot database:\n\(error)\n")
-                Utils.showInfoDialog(who: self, title: "Something went wrong", message: "A possible reason is that a newer draft version exists. Please try going back and loading this draft again.")
+                
+                waitDialog.hide() {
+                    print("\nERROR: failed to update the draft in the remote database:\n\(error!)\n")
+                    Utils.showInfoDialog(who: self, title: "Something went wrong", message: "A possible reason is that a newer draft version exists. Please try going back and loading this draft again.")
+                }
                 return
             }
             
@@ -459,14 +485,17 @@ extension ArticleEditorViewController {
                 
                 self.uploadImage(self.imageView.image!, withName: (self.draftData?["imageName"] as! String) )  { (success: Bool) in
                     
-                    if !success {
-                        print("\nERROR: failed to update the draft image file'\n")
-                        Utils.showInfoDialog(who: self, title: "Something went wrong", message: "Your draft has been saved, but the picture could not be stored properly. Please try again :'(")
-                        return
+                    waitDialog.hide() {
+                        
+                        if !success {
+                            print("\nERROR: failed to update the draft image file'\n")
+                            Utils.showInfoDialog(who: self, title: "Something went wrong", message: "Your draft has been saved, but the picture could not be stored properly. Please try again :'(")
+                            return
+                        }
+                        
+                        print("\nThe draft was succesfully updated '\(self.articleId!)' including the image!\n")
+                        Utils.showInfoDialog(who: self, title: "Done!", message: "Your draft has been saved :)")
                     }
-                    
-                    print("\nThe draft was succesfully updated '\(self.articleId!)' including the image!\n")
-                    Utils.showInfoDialog(who: self, title: "Done!", message: "Your draft has been saved :)")
                 }
             }
                 
@@ -477,17 +506,22 @@ extension ArticleEditorViewController {
                 
                 self.deleteRemoteImage(withName: imageName) { (success: Bool) in
                     
-                    if success  {   print("\nThe draft was succesfully updated '\(self.articleId!)'! (the previous image file was removed)\n")    }
-                    else        {   print("\nERROR: failed to remove the previous image file\n")                                 }
-                    
-                    Utils.showInfoDialog(who: self, title: "Done!", message: "Your draft has been saved :)")
+                    waitDialog.hide() {
+                        
+                        if success  {   print("\nThe draft was succesfully updated '\(self.articleId!)'! (the previous image file was removed)\n")    }
+                        else        {   print("\nERROR: failed to remove the previous image file\n")                                 }
+                        
+                        Utils.showInfoDialog(who: self, title: "Done!", message: "Your draft has been saved :)")
+                    }
                 }
             }
             
             // If no image to remove or save, finish
             else {
-                print("\nThe draft was succesfully updated '\(self.articleId!)'! (no image to save)\n")
-                Utils.showInfoDialog(who: self, title: "Done!", message: "Your draft has been saved :)")
+                waitDialog.hide() {
+                    print("\nThe draft was succesfully updated '\(self.articleId!)'! (no image to save)\n")
+                    Utils.showInfoDialog(who: self, title: "Done!", message: "Your draft has been saved :)")
+                }
             }
         })
     }
@@ -510,7 +544,7 @@ extension ArticleEditorViewController {
             print("\nImage '\(imageFileName)' successfully uploaded to the storage container\n")
             
             // Second, generate the thumbnail and attempt to store it
-            let thumbnail = Utils.resizeImage(image, toSize: CGSize(width: 40, height: 40))
+            let thumbnail = Utils.resizeImage(image, toSize: CGSize(width: 70, height: 70))
             let thumbFileName = imageName + "_thumb.jpg"
             
             Utils.uploadBlobImage(thumbnail, blobName: thumbFileName, toContainer: Backend.newsImageContainerName, activityIndicator:nil) { (success2: Bool) in

@@ -146,17 +146,19 @@ extension WriterArticlesViewController: UITableViewDataSource {
             cell = UITableViewCell(style: .subtitle, reuseIdentifier: cellId)
         }
         
-        // View setup (title, detail info and default image)
+        // View setup (background, title, detail info and default image)
+        cell?.backgroundColor = Utils.colorForTableRow(atIndex: indexPath.row)
+        
         cell?.textLabel?.numberOfLines = 3
         cell?.textLabel?.lineBreakMode = .byTruncatingTail
         cell?.textLabel?.text = articleTitle!
-        cell?.detailTextLabel?.text = detailLabelText
         
-        //cell?.imageView?.contentMode = .scaleAspectFit
-        cell?.imageView?.image = Utils.resizeImage(fromImage: UIImage(named: "news_placeholder.png")!, toFixedWidth: 70, toFixedHeight: 70)
+        cell?.detailTextLabel?.text = detailLabelText
         
         // If there is an image associated to this article, show its thumbnai (look it up in the cache first, then download it)
         if articleHasImage! {
+            
+            cell?.imageView?.image = Utils.resizeImage(fromImage: UIImage(named: "news_placeholder.png")!, toFixedWidth: 70, toFixedHeight: 70)
             
             if let cachedImage = thumbsCache[articleId!] {
                 cell?.imageView?.image = cachedImage
@@ -176,6 +178,9 @@ extension WriterArticlesViewController: UITableViewDataSource {
                     }
                 }
             }
+        }
+        else {
+            cell?.imageView?.image = nil
         }
         
         return cell!
@@ -254,11 +259,10 @@ extension WriterArticlesViewController {
         
         // First, make sure there is an active session
         if appClient.currentUser == nil {
+            self.stopAllActivityIndicators()
             
             print("\nERROR: unable to refresh table (no active session found).\n")
             Utils.showInfoDialog(who: self, title: "Not logged in", message: "Please use the Log in button at the navigation bar first.")
-            
-            self.stopAllActivityIndicators()
             return
         }
         
@@ -319,7 +323,7 @@ extension WriterArticlesViewController {
     
     // Launches the whole process of removing the image cache, downloading the articles and updating the view
     // (to be invoked when the user starts a pull refresh)
-    func fullLoadArticles() {
+    func pullRefreshAction() {
         
         thumbsCache.removeAll()
         loadArticles(originIsPullRefresh: true)
@@ -356,7 +360,7 @@ extension WriterArticlesViewController {
         refreshControl?.backgroundColor = UIColor.clear
         refreshControl?.tintColor = UIColor.black
         refreshControl?.attributedTitle = NSAttributedString(string: "Pull to refresh")
-        refreshControl?.addTarget(self, action: #selector(fullLoadArticles), for: UIControlEvents.valueChanged)
+        refreshControl?.addTarget(self, action: #selector(pullRefreshAction), for: UIControlEvents.valueChanged)
         tableView.addSubview(refreshControl!)
         tableView.dataSource = self
         tableView.delegate = self
@@ -480,7 +484,11 @@ extension WriterArticlesViewController {
                 
                 
                 print("\nCurrent session has been closed!\n")
-                Utils.showInfoDialog(who: self, title: "Log out", message: "See you soon, \((self.sessionInfo?.firstName)!)! Press the button again to Log in.")
+                
+                let byeMessage: String
+                if self.sessionInfo != nil  {   byeMessage = "See you soon, \((self.sessionInfo?.firstName)!)! Press the upper button again to Log in."  }
+                else                        {   byeMessage = "See you soon! Press the upper button again to Log in."  }
+                Utils.showInfoDialog(who: self, title: "Log out", message: byeMessage)
                 
                 // Remove the session info and empty the article list
                 self.sessionInfo = nil

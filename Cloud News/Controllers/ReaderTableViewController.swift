@@ -91,14 +91,14 @@ class ReaderTableViewController: UITableViewController {
             cell = UITableViewCell(style: .subtitle, reuseIdentifier: cellId)
         }
         
-        // View setup (title, date and default image)
+        // View setup (background, title, author name & date)
+        cell?.backgroundColor = Utils.colorForTableRow(atIndex: indexPath.row)
+        
         cell?.textLabel?.numberOfLines = 3
         cell?.textLabel?.lineBreakMode = .byTruncatingTail
         cell?.textLabel?.text = newsTitle!
-        cell?.detailTextLabel?.text = "\(Utils.dateToString(newsDate!))"
         
-        //cell?.imageView?.contentMode = .scaleAspectFit
-        cell?.imageView?.image = Utils.resizeImage(fromImage: UIImage(named: "news_placeholder.png")!, toFixedWidth: 70, toFixedHeight: 70)
+        cell?.detailTextLabel?.text = "\(Utils.dateToString(newsDate!))"
         
         // Attempt to get the author name (look it up in the cache first, then from the Facebook Graph API)
         if let cachedName = writersCache[newsId!] {
@@ -120,8 +120,10 @@ class ReaderTableViewController: UITableViewController {
         }
         
         
-        // If there is an image associated to this news, show its thumbnai (look it up in the cache first, then download it)
+        // If there is an image associated to this news, show its thumbnail (look it up in the cache first, then download it)
         if hasImage! {
+            
+            cell?.imageView?.image = Utils.resizeImage(fromImage: UIImage(named: "news_placeholder.png")!, toFixedWidth: 70, toFixedHeight: 70)
             
             if let cachedImage = thumbsCache[newsId!] {
                 cell?.imageView?.image = cachedImage
@@ -141,6 +143,9 @@ class ReaderTableViewController: UITableViewController {
                     }
                 }
             }
+        }
+        else {
+            cell?.imageView?.image = nil
         }
         
         return cell!
@@ -219,7 +224,7 @@ class ReaderTableViewController: UITableViewController {
     
     // Launches the whole process of removing the image and name caches, downloading the news and updating the view
     // (to be invoked when the user starts a pull refresh)
-    func fullLoadNews() {
+    func pullRefreshAction() {
         
         thumbsCache.removeAll()
         writersCache.removeAll()
@@ -244,7 +249,7 @@ class ReaderTableViewController: UITableViewController {
         refreshControl?.backgroundColor = UIColor.clear
         refreshControl?.tintColor = UIColor.black
         refreshControl?.attributedTitle = NSAttributedString(string: "Pull to refresh")
-        refreshControl?.addTarget(self, action: #selector(fullLoadNews), for: UIControlEvents.valueChanged)
+        refreshControl?.addTarget(self, action: #selector(pullRefreshAction), for: UIControlEvents.valueChanged)
         tableView.addSubview(refreshControl!)
         tableView.dataSource = self
         tableView.delegate = self
