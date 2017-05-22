@@ -1,32 +1,60 @@
-# Práctica Cloud Computing para Desarrollo Mobile de Carlos Delgado Andrés
+# Cloud News (iOS Client)
 
-**Cloud News** es un prototipo de aplicación para iOS realizada en Swift 3.0 y Xcode 8.
+This is a small news aggregator for iPhone. It allows users to anonymously read articles written by other people, and to publish their own articles using Facebook authentication. 
 
-Se trata de un sencillo agregador de noticias para iPhone, que utiliza un perfil de autor autenticado (mediante una cuenta de Facebook) para la edición y publicación de noticias en el sistema. Las noticias publicadas se pueden consultar libremente mediante un perfil de lector anónimo.
+The client relies on the **Microsoft Azure Cloud services** and uses the following frameworks:
 
-La aplicación utiliza los siguientes dos frameworks de Microsoft Azure:
+- <a href="https://github.com/azure/azure-storage-ios">Azure Storage Client Library for iOS 0.2.2</a>
+- <a href="https://go.microsoft.com/fwLink/?LinkID=529823">Mobile Services iOS SDK 3.2.0</a>
 
-- Azure Storage Client Library for iOS (https://github.com/azure/azure-storage-ios)
-- Mobile Services iOS SDK 3.2.0 (https://go.microsoft.com/fwLink/?LinkID=529823).
 
-.
-#### Consideraciones adicionales:
+&nbsp;
+### Screenshots:
 
-- El código del backend que da soporte al cliente móvil está disponible en el repositorio **Cloud News Backend** (https://github.com/cdelg4do/Cloud-News-Backend).
+<kbd> <img alt="screenshot 1" src="https://cloud.githubusercontent.com/assets/18370149/26327350/645fa9e4-3f3f-11e7-98dc-0873aeb5ec3c.png" width="256"> </kbd> &nbsp; <kbd> <img alt="screenshot 2" src="https://cloud.githubusercontent.com/assets/18370149/26327352/64613bb0-3f3f-11e7-8e02-d6c09559b7b5.png" width="256"> </kbd> &nbsp; <kbd> <img alt="screenshot 3" src="https://cloud.githubusercontent.com/assets/18370149/26327349/645e472a-3f3f-11e7-8ee2-feea58695a8f.png" width="256"> </kbd>
 
-- Los artículos/noticias pasan por 3 estados diferentes: en primer lugar, se crean en estado borrador **(draft)**, en el que pueden ser salvados y editados múltiples veces. Una vez completados, el usuario puede pasarlos a estado enviado **(submitted)** en el que permanecerán a la espera de ser publicados en el sistema. Por último, los artículos pasan a estar publicados **(published)** y serán visibles por todos los usuarios.
+&nbsp;
+<kbd> <img alt="screenshot 4" src="https://cloud.githubusercontent.com/assets/18370149/26327354/64fd68aa-3f3f-11e7-8c13-1ebfa05851ff.png" width="256"> </kbd> &nbsp; <kbd> <img alt="screenshot 5" src="https://cloud.githubusercontent.com/assets/18370149/26327351/64600916-3f3f-11e7-9339-a7a32a5d79d5.png" width="256"> </kbd> &nbsp; <kbd> <img alt="screenshot 6" src="https://cloud.githubusercontent.com/assets/18370149/26327348/645cd2aa-3f3f-11e7-829f-7e193b4b7b6f.png" width="256"> </kbd>
+  
+&nbsp;
+<kbd> <img alt="screenshot 7" src="https://cloud.githubusercontent.com/assets/18370149/26327353/6483552e-3f3f-11e7-8f66-fa179b7569da.png" width="256"> </kbd> &nbsp; <kbd> <img alt="screenshot 8" src="https://cloud.githubusercontent.com/assets/18370149/26327356/6536f78c-3f3f-11e7-8248-3f23d844a72a.png" width="256"> </kbd> &nbsp; <kbd> <img alt="screenshot 9" src="https://cloud.githubusercontent.com/assets/18370149/26327355/64fd7b74-3f3f-11e7-98ae-b9c41914b52f.png" width="256"> </kbd>
 
-- Existen dos perfiles de usuario en la aplicación: **usarios anónimos** que pueden consultar y leer todas las noticias que se hayan publicado en el sistema sin falta de identificarse, y **usuarios autenticados** que pueden crear, editar y enviar noticias para que sean publicadas.
 
-- Para la identificación de usuarios autenticados se utiliza **Facebook** como provedor de identidad, por lo que será necesario tener una cuenta en este servicio para iniciar sesión en la aplicación.
+&nbsp;
+#### Additional considerations::
 
-- Dado que el SDK de Mobile Services no implementa ningún método para el cierre de sesión con el provedor de Facebook, es posible cerrar la sesión de usuario en el servicio de Azure y volverla a iniciar pero siempre con las mismas credenciales. **Para forzar la aparición del formulario de inicio de sesión en Facebook, al cerrar la sesión se eliminan las cookies locales del dispositivo**. Esto funciona si la app se ejecuta en un dispositivo físico, pero no funciona si se ejecuta en el simulador de Xcode. Si se desea volver a mostrar el formulario de *login* en Facebook, será necesario desinstalar y volver a instalar la aplicación en el simulador.
+- The backend code that supports the client is available <a href="https://github.com/cdelg4do/Cloud-News-Backend">here</a>.
 
-- Toda la información de los artículos se almacena en la *cloud* de Microsoft Azure, así que se puede reinstalar la app en el dispositivo cliente sin que se pierda ninguna información. Los únicos datos que almacena el cliente en *caché* local son las miniaturas de imagen para mostrar en los listados de artículos (tanto los de usuarios autenticados como los de usuarios anónimos). **Esta *caché* se recrea automáticamente cuando el usuario hace un *pull refresh*** (arrastrar con el dedo hacia abajo) en la lista.
+- For user authentication (necessary to write and submitt articles) the app uses *Facebook* as identity provider, so it is mandatory to have a Facebook account. Check the description in the backend repository for further detail.
 
-- Se ha configurado una tarea programada **(Web Job)** en la *cloud* de Azure para publicar las noticias que envían los usuarios autenticados. Esta tarea se ejecuta cíclicamente **cada 15 minutos**.
+- Since the Mobile Services SDK does not implement any method to close session with the identity provider, it does not allow to authenticate with different credentials than the used the first time. In order to force the Facebook Login form to show again, all cookies created by the app are removed from the device when the user "closes" the session. This workaround works well on physical devices so far, but does not seem to work on the XCode Simulator. In this case, it is necessary to remove the app from the Simulatro and install it again.
 
-- La app implementa **geolocalización inversa** para mostrar la ubicación aproximada del sitio en que se escribió cada noticia publicada. Sin embargo, no se ha implementado la captura de la ubicación actual. En su lugar, **se generan unas coordenadas GPS aleatorias para cada artículo**, lo que permite probar el correcto funcionamiento de la geolocalización inversa para múltiples ubicaciones sin necesidad de desplazarse. En una app en producción, bastaría sustituir la generación de coordenadas aleatorias por una llamada al sistema para capturar la ubicación real del dispositivo cliente.
+- All data about the articles are stored in the Microsoft Azure cloud. The only data stored locally are the caches for thumbnail and user identifications, to minimize the number of network calls. Both caches are reset when the user refreshes a list doing a *pull refresh* gesture.
 
-- Cada vez que se visualiza una noticia publicada por parte de un usuario anónimo, se incrementa el contador de visitas de la misma. Sin embargo, si los usuarios autenticados visualizan sus propias publicaciones desde su panel de ***"My published articles"*** entonces no se modificará dicho contador.
+- The article information is stored on a SQL Server Database through an Azure App service, which hosts all the Node.js backend api and is accesed using an instance of the Mobile SDK MSClient. In order to use the client against a different App Service, the value of **mobileAppUrlString in the Backend class** must be updated with the URL of the new service.
 
+- The article image files are stored on an Azure Storage Container, and are managed from the *Blob* methods in the Utils class (making use of the Azure Storage Client Library). In order to use a diferent Azure Storage Account, the following constants in the Background class must be updated: **storageAccountName**, **storageKeyString** and **newsImageContainerName**.
+
+- The app uses reverse geolocation to identify the location address where the articles were written. The current implementation generates random GPS coordinates for each article, so that reverse geolocation can be easily tested on the XCode Simulator.
+
+- The articles flow through three different states: first they are created as **drafts**, where the author can edit, update and save them as many times as he wants. Once ready they change the status to **submitted**, and stay in that status until the server admins review and approve them. After the approval, they become **published** news, visible to everybody.
+
+- In order to simulate the approval process of submitted articles, a **Web Job** has been set up in the Azure App service. This is just a scheduled task running a JS script **every 15 minutes** that changes the status of all submitted articles to published. The script in charge of this is as follows:
+
+```javascript
+var sql = require('mssql');
+
+sql.connect("mssql://<SQL_SERVER_ADMIN>:<SQL_SERVER_ADMIN_PASSWORD>@<SQL_SERVER_DNS_NAME>:<SQL_SERVER_PORT>/<SQL_SERVER_DATABASE_NAME>?encrypt=true").then(function() {
+    
+	new sql.Request().query("UPDATE News SET status = 'published', visits = 0, publishedAt = CURRENT_TIMESTAMP WHERE status = 'submitted'").then(function(recordset) {
+		
+		console.log("All submitted jobs have been published.");
+	})
+	.catch(function(err) {
+		console.error(err);
+	});
+})
+.catch(function(err) {
+	console.error(err);
+});
+```
