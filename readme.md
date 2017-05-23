@@ -13,6 +13,7 @@ The backend code that supports the client is available <a href="https://github.c
 &nbsp;
 ### Screenshots:
 
+&nbsp;
 <kbd> <img alt="screenshot 1" src="https://cloud.githubusercontent.com/assets/18370149/26327350/645fa9e4-3f3f-11e7-98dc-0873aeb5ec3c.png" width="256"> </kbd> &nbsp; <kbd> <img alt="screenshot 2" src="https://cloud.githubusercontent.com/assets/18370149/26327352/64613bb0-3f3f-11e7-8e02-d6c09559b7b5.png" width="256"> </kbd> &nbsp; <kbd> <img alt="screenshot 3" src="https://cloud.githubusercontent.com/assets/18370149/26327349/645e472a-3f3f-11e7-8ee2-feea58695a8f.png" width="256"> </kbd>
 
 &nbsp;
