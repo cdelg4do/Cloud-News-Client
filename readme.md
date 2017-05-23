@@ -7,6 +7,8 @@ The client relies on the **Microsoft Azure Cloud services** and uses the followi
 - <a href="https://github.com/azure/azure-storage-ios">Azure Storage Client Library for iOS 0.2.2</a>
 - <a href="https://go.microsoft.com/fwLink/?LinkID=529823">Mobile Services iOS SDK 3.2.0</a>
 
+The backend code that supports the client is available <a href="https://github.com/cdelg4do/Cloud-News-Backend">here</a>.
+
 
 &nbsp;
 ### Screenshots:
@@ -21,19 +23,17 @@ The client relies on the **Microsoft Azure Cloud services** and uses the followi
 
 
 &nbsp;
-#### Additional considerations::
+### Additional considerations::
 
-- The backend code that supports the client is available <a href="https://github.com/cdelg4do/Cloud-News-Backend">here</a>.
+- For user authentication (necessary to write and submitt articles) the app uses *Facebook* as identity provider, so it is mandatory to have a Facebook account. Check the description at the <a href="https://github.com/cdelg4do/Cloud-News-Backend">backend repository</a> for further detail.
 
-- For user authentication (necessary to write and submitt articles) the app uses *Facebook* as identity provider, so it is mandatory to have a Facebook account. Check the description in the backend repository for further detail.
-
-- Since the Mobile Services SDK does not implement any method to close session with the identity provider, it does not allow to authenticate with different credentials than the used the first time. In order to force the Facebook Login form to show again, all cookies created by the app are removed from the device when the user "closes" the session. This workaround works well on physical devices so far, but does not seem to work on the XCode Simulator. In this case, it is necessary to remove the app from the Simulatro and install it again.
+- Since the Mobile Services SDK does not implement any method to close session with the identity provider, it does not allow to authenticate with different credentials than the used the first time. In order to force the Facebook Login form to show again, all cookies created by the app are removed from the device when the user "closes" the session. This workaround works well on physical devices so far, but does not seem to work on the XCode Simulator. In this case, it is necessary to remove the app from the Simulator and install it again.
 
 - All data about the articles are stored in the Microsoft Azure cloud. The only data stored locally are the caches for thumbnail and user identifications, to minimize the number of network calls. Both caches are reset when the user refreshes a list doing a *pull refresh* gesture.
 
-- The article information is stored on a SQL Server Database through an Azure App service, which hosts all the Node.js backend api and is accesed using an instance of the Mobile SDK MSClient. In order to use the client against a different App Service, the value of **mobileAppUrlString in the Backend class** must be updated with the URL of the new service.
+- The article information is stored on a SQL Server Database through an Azure App service, which hosts all the Node.js backend api and is accesed using an instance of the Mobile SDK MSClient tied to the service. In order to use the client against a different App Service, the value of **mobileAppUrlString in the Backend class** must be updated with the URL of the new service.
 
-- The article image files are stored on an Azure Storage Container, and are managed from the *Blob* methods in the Utils class (making use of the Azure Storage Client Library). In order to use a diferent Azure Storage Account, the following constants in the Background class must be updated: **storageAccountName**, **storageKeyString** and **newsImageContainerName**.
+- The article image files are stored on an Azure Storage Container, and are managed from the \*Blob methods in the Utils class (making use of the Azure Storage Client Library). In order to use a diferent Azure Storage Account, the following constants in the Background class must be updated: **storageAccountName**, **storageKeyString** and **newsImageContainerName**.
 
 - The app uses reverse geolocation to identify the location address where the articles were written. The current implementation generates random GPS coordinates for each article, so that reverse geolocation can be easily tested on the XCode Simulator.
 
